@@ -5,6 +5,13 @@ VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskHub.WebApi", "TaskHub.WebApi\TaskHub.WebApi.csproj", "{F18D6C84-43F9-4D1A-B34D-8D7137A18E30}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{728312C3-133A-4A6B-A892-EF6346D97B5A}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskHub.Dal", "TaskHub.Dal\TaskHub.Dal.csproj", "{B4838E70-B291-405E-8B3A-F5D25DD2BECE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +22,10 @@ Global
 		{F18D6C84-43F9-4D1A-B34D-8D7137A18E30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F18D6C84-43F9-4D1A-B34D-8D7137A18E30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F18D6C84-43F9-4D1A-B34D-8D7137A18E30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4838E70-B291-405E-8B3A-F5D25DD2BECE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4838E70-B291-405E-8B3A-F5D25DD2BECE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4838E70-B291-405E-8B3A-F5D25DD2BECE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4838E70-B291-405E-8B3A-F5D25DD2BECE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

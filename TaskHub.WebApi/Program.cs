@@ -1,3 +1,5 @@
+using TaskHub.WebApi.Infrastructure;
+
 namespace TaskHub.WebApi
 {
     public class Program
@@ -9,6 +11,7 @@ namespace TaskHub.WebApi
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddDependencyGroup(builder.Configuration);
 
             var app = builder.Build();
 
