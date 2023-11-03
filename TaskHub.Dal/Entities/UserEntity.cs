@@ -6,5 +6,6 @@ namespace TaskHub.Dal.Entities
     {
         override public TKey Id { get; set; }
         public ICollection<TaskEntity<TKey>> Tasks { get; set; }  
+        public ICollection<ReminderEntity<TKey>> Reminders { get; set; }
     }
 }

@@ -13,5 +13,6 @@
         public ICollection<TaskEntity<TKey>>? Subtasks { get; set; }
         public ICollection<UserEntity<TKey>> AssignedUsers { get; set; }
         public ICollection<CategoryEntity<TKey>> Categories { get; set; }
+        public ICollection<ReminderEntity<TKey>>? Reminders { get; set; }
     }
 }
