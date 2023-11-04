@@ -2,11 +2,10 @@
 {
     public interface IGenericRepository<TEntity, TKey>
     {
-        TEntity Get(TKey key);
-        void Add(TEntity entity);
+        Task<TEntity> GetByIdAsync(TKey key);
+        Task AddAsync(TEntity entity);
         void Update(TEntity entity);
         void Remove(TEntity entity);
-        IEnumerable<TEntity> GetAll();
-
+        Task<IEnumerable<TEntity>> GetAsync(ISpecification<TEntity>? specification = null);
     }
 }

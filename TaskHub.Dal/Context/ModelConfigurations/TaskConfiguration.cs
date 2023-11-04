@@ -4,9 +4,9 @@ using TaskHub.Dal.Entities;
 
 namespace TaskHub.Dal.Context.ModelConfigurations
 {
-    public class TaskConfiguration<TKey> : IEntityTypeConfiguration<TaskEntity<TKey>> where TKey : IEquatable<TKey>
+    public class TaskConfiguration<TKey> : IEntityTypeConfiguration<TaskEntity> 
     {
-        public void Configure(EntityTypeBuilder<TaskEntity<TKey>> builder)
+        public void Configure(EntityTypeBuilder<TaskEntity> builder)
         {
             builder.ToTable("Tasks");
             builder

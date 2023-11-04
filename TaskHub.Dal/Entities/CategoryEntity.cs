@@ -1,10 +1,10 @@
 ﻿namespace TaskHub.Dal.Entities
 {
-    public class CategoryEntity<TKey> : IBaseEntity<TKey> where TKey : IEquatable<TKey>
+    public class CategoryEntity : IBaseEntity<Guid>
     {
-        public TKey Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
-        public ICollection<TaskEntity<TKey>> Tasks { get; set; }
+        public ICollection<TaskEntity> Tasks { get; set; }
     }
 }

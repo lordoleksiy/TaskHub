@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskHub.Dal.Entities;
 using TaskHub.Dal.Interfaces;
+using TaskHub.Dal.Specification;
 
 namespace TaskHub.Dal.Repositories
 {
@@ -13,20 +14,22 @@ namespace TaskHub.Dal.Repositories
             _dbContext = dbContext;
             _entities = dbContext.Set<TEntity>();
         }
-        public void Add(TEntity entity)
+        public async Task AddAsync(TEntity entity)
         {
-            _entities.Add(entity);
+            await _entities.AddAsync(entity);
         }
 
-        public TEntity Get(TKey key)
+        public async Task<IEnumerable<TEntity>> GetAsync(ISpecification<TEntity>? specification = null)
         {
-            return _entities.Find(key);
+            var res = specification != null ? _entities.Specify(specification) : _entities;
+            return await res.ToListAsync();
         }
 
-        public IEnumerable<TEntity> GetAll()
+        public async Task<TEntity> GetByIdAsync(TKey key)
         {
-            return _entities;
+            return await _entities.FindAsync(key);
         }
+
 
         public void Remove(TEntity entity)
         {
@@ -37,7 +40,6 @@ namespace TaskHub.Dal.Repositories
         {
             _entities.Attach(entity);
             _dbContext.Entry(entity).State = EntityState.Modified;
-            _dbContext.SaveChanges();
         }
     }
 }

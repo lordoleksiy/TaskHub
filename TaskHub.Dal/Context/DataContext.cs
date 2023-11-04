@@ -8,10 +8,10 @@ namespace TaskHub.Dal.Context
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         { }
-        public DbSet<UserEntity<Guid>> Users { get; set; }
-        public DbSet<TaskEntity<Guid>> Tasks { get; set; }
-        public DbSet<ReminderEntity<Guid>> Reminders { get; set; }
-        public DbSet<CategoryEntity<Guid>> Categories { get; set; }
+        public DbSet<UserEntity> Users { get; set; }
+        public DbSet<TaskEntity> Tasks { get; set; }
+        public DbSet<ReminderEntity> Reminders { get; set; }
+        public DbSet<CategoryEntity> Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

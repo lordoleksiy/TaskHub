@@ -4,9 +4,9 @@ using TaskHub.Dal.Entities;
 
 namespace TaskHub.Dal.Context.ModelConfigurations
 {
-    public class ReminderConfiguration<TKey> : IEntityTypeConfiguration<ReminderEntity<TKey>> where TKey : IEquatable<TKey>
+    public class ReminderConfiguration<TKey> : IEntityTypeConfiguration<ReminderEntity>
     {
-        public void Configure(EntityTypeBuilder<ReminderEntity<TKey>> builder)
+        public void Configure(EntityTypeBuilder<ReminderEntity> builder)
         {
             builder.ToTable("Reminders");
 

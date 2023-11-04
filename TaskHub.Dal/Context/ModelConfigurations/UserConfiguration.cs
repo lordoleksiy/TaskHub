@@ -4,9 +4,9 @@ using TaskHub.Dal.Entities;
 
 namespace TaskHub.Dal.Context.ModelConfigurations
 {
-    public class UserConfiguration<TKey> : IEntityTypeConfiguration<UserEntity<TKey>> where TKey : IEquatable<TKey>
+    public class UserConfiguration<TKey> : IEntityTypeConfiguration<UserEntity>
     {
-        public void Configure(EntityTypeBuilder<UserEntity<TKey>> builder)
+        public void Configure(EntityTypeBuilder<UserEntity> builder)
         {
             builder.ToTable("Users");
 
