@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TaskHub.Dal.Context;
 using TaskHub.Dal.Entities;
 using TaskHub.Dal.Interfaces;
 using TaskHub.Dal.Specification;
@@ -7,9 +8,9 @@ namespace TaskHub.Dal.Repositories
 {
     public class GenericRepository<TEntity, TKey> : IGenericRepository<TEntity, TKey> where TEntity : class, IBaseEntity<TKey>
     {
-        private readonly DbContext _dbContext;
+        private readonly DataContext _dbContext;
         private readonly DbSet<TEntity> _entities;
-        public GenericRepository(DbContext dbContext) 
+        public GenericRepository(DataContext dbContext) 
         {
             _dbContext = dbContext;
             _entities = dbContext.Set<TEntity>();

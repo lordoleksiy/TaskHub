@@ -4,7 +4,7 @@ using TaskHub.Dal.Entities;
 
 namespace TaskHub.Dal.Context.ModelConfigurations
 {
-    public class TaskConfiguration<TKey> : IEntityTypeConfiguration<TaskEntity> 
+    public class TaskConfiguration : IEntityTypeConfiguration<TaskEntity> 
     {
         public void Configure(EntityTypeBuilder<TaskEntity> builder)
         {

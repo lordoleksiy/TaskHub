@@ -4,7 +4,7 @@ using TaskHub.Dal.Entities;
 
 namespace TaskHub.Dal.Context.ModelConfigurations
 {
-    public class ReminderConfiguration<TKey> : IEntityTypeConfiguration<ReminderEntity>
+    public class ReminderConfiguration : IEntityTypeConfiguration<ReminderEntity>
     {
         public void Configure(EntityTypeBuilder<ReminderEntity> builder)
         {

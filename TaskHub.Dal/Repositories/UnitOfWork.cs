@@ -1,17 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TaskHub.Dal.Context;
 using TaskHub.Dal.Interfaces;
 
 namespace TaskHub.Dal.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly DbContext _dbContext;
+        private readonly DataContext _dbContext;
         private bool _disposed;
         private ICategoryRepository _categoryRepository;
         private IReminderRepository _reminderRepository;
         private ITaskRepository _taskRespository;
         private IUserRepository _userRepository;
-        public UnitOfWork(DbContext dbContext)
+        public UnitOfWork(DataContext dbContext)
         {
             _dbContext = dbContext;
         }

@@ -5,19 +5,15 @@ namespace TaskHub.Dal.Specification
 {
     public class BaseSpecification<T> : ISpecification<T>
     {
-        protected BaseSpecification(Expression<Func<T, bool>> criteria)
-        {
-            Criteria = criteria;
-        }
         protected BaseSpecification()
         {}
-        public Expression<Func<T, bool>> Criteria { get; }
-        public List<Expression<Func<T, object>>> Includes { get; } = new List<Expression<Func<T, object>>>();
-        public Expression<Func<T, object>> OrderBy { get; private set; }
+        public Expression<Func<T, bool>> Criteria { get; protected set; }
+        public List<Expression<Func<T, object>>> Includes { get; protected set; } = new List<Expression<Func<T, object>>>();
+        public Expression<Func<T, object>> OrderBy { get; protected set; }
 
-        public int Take { get; private set; }
-        public int Skip { get; private set; }
-        public bool IsPagingEnabled { get; private set; } = false;
+        public int Take { get; protected set; }
+        public int Skip { get; protected set; }
+        public bool IsPagingEnabled { get; protected set; } = false;
         protected virtual void AddInclude(Expression<Func<T, object>> includeExpression)
         {
             Includes.Add(includeExpression);

@@ -1,12 +1,12 @@
-﻿using System.Data.Entity;
-using TaskHub.Dal.Entities;
+﻿using TaskHub.Dal.Entities;
 using TaskHub.Dal.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace TaskHub.Dal.Specification
 {
     public static class SpecificationExtensions
     {
-        public static IQueryable<TEntity> Specify<TEntity>(this IQueryable<TEntity> inputQuery, ISpecification<TEntity> specification)
+        public static IQueryable<TEntity> Specify<TEntity>(this IQueryable<TEntity> inputQuery, ISpecification<TEntity> specification) where TEntity : class
         {
             var query = inputQuery;
 
@@ -28,7 +28,7 @@ namespace TaskHub.Dal.Specification
             return specification.Criteria != null ? query.Where(specification.Criteria) : query;
         }
 
-        private static IQueryable<TEntity> ApplyIncludes<TEntity>(IQueryable<TEntity> query, ISpecification<TEntity> specification)
+        private static IQueryable<TEntity> ApplyIncludes<TEntity>(IQueryable<TEntity> query, ISpecification<TEntity> specification) where TEntity : class
         {
             foreach (var includeExpression in specification.Includes)
             {
