@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskHub.Dal.Context;
 
@@ -11,9 +12,10 @@ using TaskHub.Dal.Context;
 namespace TaskHub.Dal.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231107213444_AddedSubTaskEntity")]
+    partial class AddedSubTaskEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -219,15 +221,15 @@ namespace TaskHub.Dal.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3f651983-f575-421d-b347-e6c799c30203"),
-                            ConcurrencyStamp = "833886ea-48be-4ca8-b350-119062a92dca",
+                            Id = new Guid("1deb8f1a-b8c0-4eab-a42d-3c20a7cbc7a8"),
+                            ConcurrencyStamp = "8adcd8a2-681a-4e38-bdda-cedd31b524f8",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("0e4f1b63-4e33-4e54-8805-f224eaf330a4"),
-                            ConcurrencyStamp = "15951858-e4bc-4fd8-9e45-ce7ea2671d14",
+                            Id = new Guid("53cf8bde-85d8-4bee-93d6-ef5bce43de31"),
+                            ConcurrencyStamp = "34acb5e3-c064-42ff-8368-7075326f7bab",
                             Name = "User",
                             NormalizedName = "USER"
                         });

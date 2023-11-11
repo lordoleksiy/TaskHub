@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using TaskHub.Bll.Interfaces;
 using TaskHub.Bll.Services.Abstract;
+using TaskHub.Common.Constants;
 using TaskHub.Common.DTO.Reponse;
 using TaskHub.Common.DTO.Reponse.Token;
 using TaskHub.Common.DTO.User;
@@ -37,47 +38,32 @@ namespace TaskHub.Bll.Services
 
         public async Task<ApiResponse> RegisterAsync(RegisterModel model)
         {
-            var response = new ApiResponse();
-            var users = await _unitOfWork.UserRepository.GetAsync(new FindByNameOrEmailSpecification(model.Username, model.Email));
+            var users = await _unitOfWork.UserRepository.GetAsync(new GetUserByNameOrEmailSpecification(model.Username, model.Email));
             if (users.Any()) 
             {
-                response.Message = "User is already registered!";
-                response.Status = Status.Error;
-                return response;
+                return CreateErrorResponse(ResponseMessages.UserIsAlreadyRegistered);
             }
             var user = _mapper.Map<UserEntity>(model);
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded) 
             {
-                response.Status = Status.Error;
-                response.Message = "Error while creating user.";
-                response.Errors = result.Errors.Select(u => u.Description).ToList();
+                return CreateErrorResponse(ResponseMessages.ErrorWhileCreatingUser, result.Errors.Select(u => u.Description));
             }
-            else
-            {
-                response.Message = "User successfully registered.";
-            }
-            return response;
+            return CreateSucсessfullResponse(message: ResponseMessages.UserSuccessfullyRegistered);
         }
 
         public async Task<ApiResponse> LoginAsync(LoginModel model)
         {
-            var response = new ApiResponse();
-            var user = (await _unitOfWork.UserRepository.GetAsync(new FindByNameOrEmailSpecification(model.Username, null))).FirstOrDefault();
+            var user = (await _unitOfWork.UserRepository.GetAsync(new GetUserByUserNameSpecification(model.Username))).FirstOrDefault();
             if (user == null) 
             {
-                response.Message = "User not found.";
-                response.Status = Status.Error;
-                return response;
+                return CreateErrorResponse(ResponseMessages.UserNotFound);
             }
             if (!await _userManager.CheckPasswordAsync(user, model.Password))
             {
-                response.Message = "Incorrect password.";
-                response.Status = Status.Error;
-                return response;
+                return CreateErrorResponse(ResponseMessages.IncorrectPassword);
             }
-            response.Data = new TokenResponseDTO(await GenerateJWTToken(user));
-            return response;
+            return CreateSucсessfullResponse(new TokenResponseDTO(await GenerateJWTToken(user)));
         }
 
         private async Task<string> GenerateJWTToken(UserEntity user)
@@ -86,7 +72,7 @@ namespace TaskHub.Bll.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             var claims = new List<Claim>()
             {
-                new Claim("Id", user.Id.ToString())
+                new Claim(ClaimTypes.Name, user.UserName)
             };
             var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
             userRoles.ToList().ForEach(x => claims.Add(new Claim(ClaimTypes.Role, x)));

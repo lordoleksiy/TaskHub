@@ -14,6 +14,10 @@ using TaskHub.Dal.Repositories;
 using TaskHub.Common.DTO.Reponse;
 using TaskHub.Bll.Interfaces;
 using TaskHub.Common.Helpers;
+using TaskHub.WebApi.Middlewares;
+using AutoMapper;
+using TaskHub.Bll.Mappers;
+using System.Security.Claims;
 
 namespace TaskHub.WebApi.Infrastructure
 {
@@ -21,6 +25,7 @@ namespace TaskHub.WebApi.Infrastructure
     {
         public static void Configure(this IApplicationBuilder app)
         {
+            app.UseMiddleware<GlobalExceptionHandler>();
             app.UseAuthentication();
             app.UseAuthorization();
         }
@@ -30,14 +35,24 @@ namespace TaskHub.WebApi.Infrastructure
             services.AddControllers()
                 .AddJsonOptions(options =>
                 {
-                    options.JsonSerializerOptions.IgnoreNullValues = true;
+                    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
                 });
             services.Configure<JwtSettings>(config.GetSection("Jwt"));
+            // Mapper configs:
+            services.AddAutoMapper(conf =>
+            {
+                conf.AddProfiles(
+                    new List<Profile>()
+                    {
+                        new UserMapperProfile(),
+                        new TaskMapperProfile()
+                    });
+            });
+            // Other:
             ConfigureApiBehaviorOptions(services);
             ConfigureFluentValidation(services);
             ConfigureIdentity(services, config);
-            ConfigureAuthentication(services, config);
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            ConfigureAuthentication(services, config);    
 
             return services;
         }
@@ -47,6 +62,7 @@ namespace TaskHub.WebApi.Infrastructure
             services.AddDbContext<DataContext>(options => options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAuthSerivce, AuthService>();
+            services.AddScoped<ITaskService, TaskService>();
 
             return services;
         }
@@ -57,7 +73,7 @@ namespace TaskHub.WebApi.Infrastructure
             {
                 options.InvalidModelStateResponseFactory = c =>
                 {
-                    var response = new ApiResponse()
+                    var response = new ApiResponse
                     {
                         Message = "Validation Error",
                         Status = Status.Error,
@@ -110,7 +126,21 @@ namespace TaskHub.WebApi.Infrastructure
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true
+                    ValidateIssuerSigningKey = true,
+                    NameClaimType = ClaimTypes.Name,
+                    RoleClaimType = ClaimTypes.Role
+                };
+                o.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        var nameClaim = context.Principal.FindFirst(ClaimTypes.Name);
+                        if (nameClaim == null)
+                        {
+                            context.Fail("NameClaimType is missing in the token.");
+                        }
+                        return Task.CompletedTask;
+                    }
                 };
             });
         }

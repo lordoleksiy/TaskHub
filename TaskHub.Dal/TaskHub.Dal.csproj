@@ -12,4 +12,8 @@
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="6.0.24" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TaskHub.Common\TaskHub.Common.csproj" />
+  </ItemGroup>
+
 </Project>

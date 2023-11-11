@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskHub.Dal.Context;
 
@@ -11,9 +12,10 @@ using TaskHub.Dal.Context;
 namespace TaskHub.Dal.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231107153611_ChangeTask")]
+    partial class ChangeTask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -219,53 +221,18 @@ namespace TaskHub.Dal.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3f651983-f575-421d-b347-e6c799c30203"),
-                            ConcurrencyStamp = "833886ea-48be-4ca8-b350-119062a92dca",
+                            Id = new Guid("74ce69b7-98ff-4dfe-9ca5-499f8c6a189c"),
+                            ConcurrencyStamp = "8cb792a5-9e8c-430f-a6ff-8ca7d390f9c8",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("0e4f1b63-4e33-4e54-8805-f224eaf330a4"),
-                            ConcurrencyStamp = "15951858-e4bc-4fd8-9e45-ce7ea2671d14",
+                            Id = new Guid("083c0e14-d86c-45fa-a037-f360a0f68fdc"),
+                            ConcurrencyStamp = "d8c99100-05ec-4745-bf41-c36a4ef939eb",
                             Name = "User",
                             NormalizedName = "USER"
                         });
-                });
-
-            modelBuilder.Entity("TaskHub.Dal.Entities.SubTaskEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<Guid>("ParentTaskId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PerformerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id")
-                        .HasName("SubtaskId");
-
-                    b.HasAlternateKey("Name");
-
-                    b.HasIndex("ParentTaskId");
-
-                    b.HasIndex("PerformerId");
-
-                    b.ToTable("Subtasks", (string)null);
                 });
 
             modelBuilder.Entity("TaskHub.Dal.Entities.TaskEntity", b =>
@@ -273,9 +240,6 @@ namespace TaskHub.Dal.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CompletedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -287,10 +251,8 @@ namespace TaskHub.Dal.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                    b.Property<Guid?>("ParentTaskId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -303,7 +265,7 @@ namespace TaskHub.Dal.Migrations
                     b.HasKey("Id")
                         .HasName("TaskId");
 
-                    b.HasAlternateKey("Name");
+                    b.HasIndex("ParentTaskId");
 
                     b.ToTable("Tasks", (string)null);
                 });
@@ -476,23 +438,14 @@ namespace TaskHub.Dal.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskHub.Dal.Entities.SubTaskEntity", b =>
+            modelBuilder.Entity("TaskHub.Dal.Entities.TaskEntity", b =>
                 {
                     b.HasOne("TaskHub.Dal.Entities.TaskEntity", "ParentTask")
                         .WithMany("Subtasks")
                         .HasForeignKey("ParentTaskId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TaskHub.Dal.Entities.UserEntity", "Performer")
-                        .WithMany()
-                        .HasForeignKey("PerformerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentTask");
-
-                    b.Navigation("Performer");
                 });
 
             modelBuilder.Entity("UsersTasksJoinTable", b =>

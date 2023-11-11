@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskHub.Dal.Context;
 using TaskHub.Dal.Interfaces;
+using TaskHub.Dal.Interfaces.Repos;
 
 namespace TaskHub.Dal.Repositories
 {
@@ -12,6 +13,7 @@ namespace TaskHub.Dal.Repositories
         private IReminderRepository _reminderRepository;
         private ITaskRepository _taskRespository;
         private IUserRepository _userRepository;
+        private ISubTaskRepository _subTaskRespository;
         public UnitOfWork(DataContext dbContext)
         {
             _dbContext = dbContext;
@@ -46,6 +48,15 @@ namespace TaskHub.Dal.Repositories
             {
                 _userRepository ??= new UserRepository(_dbContext);
                 return _userRepository;
+            }
+        }
+
+        public ISubTaskRepository SubTaskRespository
+        {
+            get
+            {
+                _subTaskRespository ??= new SubTaskRespository(_dbContext);
+                return _subTaskRespository;
             }
         }
         public async Task Commit()
