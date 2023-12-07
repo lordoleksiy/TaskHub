@@ -25,7 +25,8 @@ namespace TaskHub.Bll.Services
         #region public methods
         public async Task<ApiResponse> GetTasksByUserNameAsync(string userName)
         {
-            if (userName == null || !(await _unitOfWork.UserRepository.GetAsync(new GetUserByUserNameSpecification(userName))).Any()) 
+            var users = await _unitOfWork.UserRepository.GetAsync(new GetUserByUserNameSpecification(userName));
+            if (!users.Any())
             {
                 return CreateErrorResponse(ResponseMessages.UserNotFound);
             }

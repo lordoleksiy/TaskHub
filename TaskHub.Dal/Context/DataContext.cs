@@ -23,7 +23,6 @@ namespace TaskHub.Dal.Context
             modelBuilder.ApplyConfiguration(new TaskConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
-            modelBuilder.ApplyConfiguration(new SubTaskConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }

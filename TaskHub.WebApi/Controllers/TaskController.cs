@@ -21,36 +21,53 @@ namespace TaskHub.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMyTasksAsync()
         {
-            var userName = User.FindFirst(ClaimTypes.Name)?.Value;
-            return Ok(await _taskService.GetTasksByUserNameAsync(userName));
+            var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
+            var response = await _taskService.GetTasksByUserNameAsync(userName);
+            if (response.Status == Status.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateTaskAsync(NewTaskDTO task)
         {
-            var userName = User.FindFirst(ClaimTypes.Name)?.Value;
+            var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
             if (!task.AssignedUserNames.Contains(userName))
             {
                 task.AssignedUserNames.Add(userName);
             }
             var response = await _taskService.CreateTaskAsync(task);
-            return Ok(response);
+            if (response.Status == Status.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
         }
 
         [HttpPost("update")]
         public async Task<IActionResult> UpdateTaskAsync(UpdateTaskDTO task)
         {
-            var userName = User.FindFirst(ClaimTypes.Name)?.Value;
+            var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
             var response = await _taskService.UpdateTaskAsync(task, userName);
-            return Ok(response);
+            if (response.Status == Status.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteTaskAsync([FromQuery] string name)
         {
-            var userName = User.FindFirst(ClaimTypes.Name)?.Value;
+            var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
             var response = await _taskService.DeleteTaskAsync(name, userName);
-            return Ok(response);
+            if (response.Status == Status.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
         }
     }
 }

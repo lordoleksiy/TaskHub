@@ -134,10 +134,10 @@ namespace TaskHub.WebApi.Infrastructure
                 {
                     OnTokenValidated = context =>
                     {
-                        var nameClaim = context.Principal.FindFirst(ClaimTypes.Name);
+                        var nameClaim = context?.Principal?.FindFirst(ClaimTypes.Name);
                         if (nameClaim == null)
                         {
-                            context.Fail("NameClaimType is missing in the token.");
+                            context?.Fail("NameClaimType is missing in the token.");
                         }
                         return Task.CompletedTask;
                     }
