@@ -18,13 +18,6 @@ namespace TaskHub.Dal.Context.ModelConfigurations
                 .ValueGeneratedOnAdd();
 
             builder
-                .Property(t => t.Name)
-                .HasMaxLength(255)
-                .IsRequired();
-
-            builder.HasAlternateKey(t => t.Name);
-
-            builder
                 .Property(t => t.Title)
                 .IsRequired()
                 .HasMaxLength(255);

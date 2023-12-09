@@ -3,12 +3,15 @@ using TaskHub.Common.DTO.Task;
 
 namespace TaskHub.WebApi.Validators.Task
 {
-    public class NewTaskValidator : AbstractValidator<NewTaskDTO>
+    public class UpdateTaskValidator : AbstractValidator<UpdateTaskDTO>
     {
-        public NewTaskValidator()
+        public UpdateTaskValidator()
         {
+            RuleFor(task => task.Id)
+                .NotEmpty().WithMessage("Id is required.");
+
             RuleFor(task => task.Title)
-                .NotEmpty().WithMessage("Title is required when creating the task.")
+                .NotEmpty().WithMessage("Title is required when updating the task.")
                 .MinimumLength(6).WithMessage("The minimum length of title is 6 symbols")
                 .MaximumLength(255).WithMessage("Title can be up to 255 characters long.");
 
@@ -17,12 +20,15 @@ namespace TaskHub.WebApi.Validators.Task
                 .Must(BeValidDate).WithMessage("Invalid Due date!");
 
             RuleFor(task => task.Description)
-                .MaximumLength(1000).WithMessage("Description can be up to 1000 characters long.");
+                .Length(0, 1000).WithMessage("Description must be less than 500 characters.");
         }
 
-        private bool BeValidDate(string value)
+        private bool BeValidDate(string? value)
         {
-            return DateTime.TryParse(value, out var date) && date > DateTime.Now;
+            if (value == null) return true;
+            DateTime date;
+            return DateTime.TryParse(value, out date) && date > DateTime.Now;
         }
     }
 }
+

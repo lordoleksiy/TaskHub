@@ -158,6 +158,9 @@ namespace TaskHub.Dal.Migrations
                     b.HasKey("Id")
                         .HasName("CategoryId");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Categories", (string)null);
                 });
 
@@ -219,15 +222,15 @@ namespace TaskHub.Dal.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("b9feedc1-0a2e-4bcd-85eb-6b59dca5fd14"),
-                            ConcurrencyStamp = "6b4ed4dd-9eef-466c-a610-5623ec0a9803",
+                            Id = new Guid("6aec0ddf-ca0d-42b4-8c85-164f3b6fd024"),
+                            ConcurrencyStamp = "019b945b-9800-4239-b333-650233ffa0c6",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("73fb01c4-d319-4a6b-ad5d-99833a18ab98"),
-                            ConcurrencyStamp = "ae041f14-5d88-4c96-a8e2-54f45e77dea2",
+                            Id = new Guid("44753e1a-3681-4855-b196-86ed66a16b9a"),
+                            ConcurrencyStamp = "8014ea9a-3f38-4cb4-8b1c-118536588a7a",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -252,11 +255,6 @@ namespace TaskHub.Dal.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<Guid?>("ParentTaskId")
                         .HasColumnType("uniqueidentifier");
 
@@ -270,8 +268,6 @@ namespace TaskHub.Dal.Migrations
 
                     b.HasKey("Id")
                         .HasName("TaskId");
-
-                    b.HasAlternateKey("Name");
 
                     b.HasIndex("ParentTaskId");
 

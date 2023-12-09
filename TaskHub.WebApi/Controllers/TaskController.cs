@@ -59,10 +59,10 @@ namespace TaskHub.WebApi.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteTaskAsync([FromQuery] string name)
+        public async Task<IActionResult> DeleteTaskAsync([FromQuery] string Id)
         {
             var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
-            var response = await _taskService.DeleteTaskAsync(name, userName);
+            var response = await _taskService.DeleteTaskAsync(Id, userName);
             if (response.Status == Status.Success)
             {
                 return Ok(response);

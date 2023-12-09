@@ -24,6 +24,10 @@ namespace TaskHub.Dal.Context.ModelConfigurations
                 .HasMaxLength(255);
 
             builder
+                .HasIndex(c => c.Name)
+                .IsUnique();
+
+            builder
                 .Property(c => c.Description)
                 .HasMaxLength(1000);
 

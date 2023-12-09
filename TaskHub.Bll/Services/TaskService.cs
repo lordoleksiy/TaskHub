@@ -37,9 +37,9 @@ namespace TaskHub.Bll.Services
         public async Task<ApiResponse> CreateTaskAsync(NewTaskDTO task)
         {
             var taskEntity = _mapper.Map<TaskEntity>(task);
-            taskEntity.Name = GenerateTaskName();
             taskEntity.CreatedDate = DateTime.UtcNow;
             taskEntity.AssignedUsers = (await _unitOfWork.UserRepository.GetAsync(new GetUsersByNamesSpecification(task.AssignedUserNames))).ToList();
+            taskEntity.ParentTaskId = task.ParentTaskId != null ? Guid.Parse(task.ParentTaskId) : null; 
 
             await UpdateCategories(task.Categories, taskEntity);
             await _unitOfWork.TaskRepository.AddAsync(taskEntity);
@@ -49,22 +49,38 @@ namespace TaskHub.Bll.Services
 
         public async Task<ApiResponse> UpdateTaskAsync(UpdateTaskDTO task, string userName)
         {
-            var taskEntity = (await _unitOfWork.TaskRepository.GetAsync(new GetTaskByNameAndUserNameSpecification(task.Name, userName))).FirstOrDefault();
-            if (taskEntity == null)
+            var taskEntities = await _unitOfWork.TaskRepository.GetAsync(new GetFullTaskSpecification(new Guid(task.Id)));
+            if (!taskEntities.Any())
             {
                 return CreateErrorResponse(ResponseMessages.NoTaskFound);
             }
+            var taskEntity = taskEntities.First();
+            if (!taskEntity.AssignedUsers.Any(u => u.UserName == userName))
+            {
+                return CreateErrorResponse(ResponseMessages.TaskCannotBeUpdated);
+            }
+            taskEntity.Title = task.Title;
+            taskEntity.Description = task.Description;
+            taskEntity.DueDate = DateTime.Parse(task.DueDate);
+            taskEntity.Status = task.Status;
+            if (task.Status == TaskStatusCode.Closed)
+            {
+                if (taskEntity.Subtasks != null && !taskEntity.Subtasks.All(s => s.Status == TaskStatusCode.Closed))
+                {
+                    return CreateErrorResponse(ResponseMessages.SubTasksMustBeClosed);
+                }
+                taskEntity.CompletedDate = DateTime.UtcNow;
+            }
 
-            UpdateTaskDetails(task, taskEntity);
             await UpdateAssignedUsers(task, taskEntity);
-            await UpdateCategories(task.Categories, taskEntity);
+            await UpdateCategories(task.Categories, taskEntity); 
 
             await _unitOfWork.Commit();
             return CreateSucсessfullResponse(_mapper.Map<TaskDTO>(taskEntity));
         }
-        public async Task<ApiResponse> DeleteTaskAsync(string taskName, string userName)
+        public async Task<ApiResponse> DeleteTaskAsync(string taskId, string userName)
         {
-            var taskEntity = (await _unitOfWork.TaskRepository.GetAsync(new GetTaskByNameAndUserNameSpecification(taskName, userName))).FirstOrDefault();
+            var taskEntity = await _unitOfWork.TaskRepository.GetByIdAsync(new Guid(taskId));
             if (taskEntity == null)
             {
                 return CreateErrorResponse(ResponseMessages.NoTaskFound);
@@ -75,23 +91,6 @@ namespace TaskHub.Bll.Services
         }
         #endregion
         #region helpers
-        private static string GenerateTaskName()
-        {
-            return $"task#{Guid.NewGuid():N}";
-        }
-
-        private static void UpdateTaskDetails(UpdateTaskDTO task, TaskEntity taskEntity)
-        {
-            taskEntity.Title = task.Title ?? taskEntity.Title;
-            taskEntity.Description = task.Description ?? taskEntity.Description;
-            taskEntity.DueDate = task.DueDate == null ? taskEntity.DueDate : DateTime.Parse(task.DueDate);
-            taskEntity.Status = task.Status;
-            if (taskEntity.Status == TaskStatusCode.Closed)
-            {
-                taskEntity.CompletedDate = DateTime.UtcNow;
-            }
-        }
-
         private async Task UpdateAssignedUsers(UpdateTaskDTO task, TaskEntity taskEntity)
         {
             if (task.AssignedUserNames != null)
@@ -108,22 +107,19 @@ namespace TaskHub.Bll.Services
             }
         }
 
-        private async Task UpdateCategories(ICollection<string>? tasks, TaskEntity taskEntity)
+        private async Task UpdateCategories(ICollection<string>? categories, TaskEntity taskEntity)
         {
-            if (tasks != null && tasks.Any())
+            if (categories != null && categories.Any())
             {
-                var categoryNames = taskEntity.Categories != null ? tasks.Except(taskEntity.Categories.Select(u => u.Name)) : tasks;
-                if (categoryNames.Any())
-                {
-                    var categories = (await _unitOfWork.CategoryRepository.GetAsync(new GetCategoriesByNamesSpecification(categoryNames))).ToList();
-                    var newCategories = categoryNames.Except(categories.Select(u => u.Name));
-                    categories.AddRange(newCategories.Select(c => new CategoryEntity { Name = c }));
-                    if (taskEntity.Categories != null)
-                    {
-                        categories.AddRange(taskEntity.Categories);
-                    }
-                    taskEntity.Categories = categories;
-                }
+                var categoriesInDB = (await _unitOfWork.CategoryRepository.GetAsync(new GetCategoriesByNamesSpecification(categories))).ToList();
+                var newCategories = categories.Except(categoriesInDB.Select(u => u.Name));
+                categoriesInDB.AddRange(newCategories.Select(c => new CategoryEntity { Name = c }));
+                
+                taskEntity.Categories = categoriesInDB;
+            }
+            else
+            {
+                taskEntity.Categories = null;
             }
         }
         #endregion

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TaskHub.Dal.Migrations
 {
-    public partial class Initial : Migration
+    public partial class initialconfig : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -66,9 +66,10 @@ namespace TaskHub.Dal.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CompletedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     ParentTaskId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
@@ -268,12 +269,12 @@ namespace TaskHub.Dal.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { new Guid("83d1b7e8-a572-43f4-aea8-83a12ded7320"), "03a72b9c-2c43-4f3b-8f61-46ddfaa500b7", "User", "USER" });
+                values: new object[] { new Guid("531dd788-09d6-461c-aea5-af0c4236ed0c"), "b452b1fc-6894-402f-9df7-87542e26f70a", "Admin", "ADMIN" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { new Guid("a9b055c4-20a2-48df-8c6d-84aee4c6e6fb"), "842c66c0-eb7d-4866-aedb-dadfca84f229", "Admin", "ADMIN" });
+                values: new object[] { new Guid("9758814a-ad76-4a5d-8843-ec352a2577cc"), "69b959c4-9290-4be6-af79-13f61b0a5eb5", "User", "USER" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

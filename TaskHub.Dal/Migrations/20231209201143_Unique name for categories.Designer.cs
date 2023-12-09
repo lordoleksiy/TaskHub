@@ -12,8 +12,8 @@ using TaskHub.Dal.Context;
 namespace TaskHub.Dal.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231107153611_ChangeTask")]
-    partial class ChangeTask
+    [Migration("20231209201143_Unique name for categories")]
+    partial class Uniquenameforcategories
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -160,6 +160,9 @@ namespace TaskHub.Dal.Migrations
                     b.HasKey("Id")
                         .HasName("CategoryId");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Categories", (string)null);
                 });
 
@@ -221,15 +224,15 @@ namespace TaskHub.Dal.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("74ce69b7-98ff-4dfe-9ca5-499f8c6a189c"),
-                            ConcurrencyStamp = "8cb792a5-9e8c-430f-a6ff-8ca7d390f9c8",
+                            Id = new Guid("6aec0ddf-ca0d-42b4-8c85-164f3b6fd024"),
+                            ConcurrencyStamp = "019b945b-9800-4239-b333-650233ffa0c6",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("083c0e14-d86c-45fa-a037-f360a0f68fdc"),
-                            ConcurrencyStamp = "d8c99100-05ec-4745-bf41-c36a4ef939eb",
+                            Id = new Guid("44753e1a-3681-4855-b196-86ed66a16b9a"),
+                            ConcurrencyStamp = "8014ea9a-3f38-4cb4-8b1c-118536588a7a",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -240,6 +243,9 @@ namespace TaskHub.Dal.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");

@@ -7,5 +7,6 @@
         public string? Description { get; init; }
         public ICollection<string>? Categories { get; init; }
         public ICollection<string> AssignedUserNames { get; init; }
+        public string? ParentTaskId { get; init; }
     }
 }
