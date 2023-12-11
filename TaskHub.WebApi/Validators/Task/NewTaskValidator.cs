@@ -3,7 +3,7 @@ using TaskHub.Common.DTO.Task;
 
 namespace TaskHub.WebApi.Validators.Task
 {
-    public class NewTaskValidator : AbstractValidator<NewTaskDTO>
+    public class NewTaskValidator : BaseValidator<NewTaskDTO>
     {
         public NewTaskValidator()
         {
@@ -18,11 +18,9 @@ namespace TaskHub.WebApi.Validators.Task
 
             RuleFor(task => task.Description)
                 .MaximumLength(1000).WithMessage("Description can be up to 1000 characters long.");
-        }
 
-        private bool BeValidDate(string value)
-        {
-            return DateTime.TryParse(value, out var date) && date > DateTime.Now;
+            RuleFor(task => task.ParentTaskId)
+                .Must(BeNullableGuid).WithMessage("Parent task id must be guid.");
         }
     }
 }

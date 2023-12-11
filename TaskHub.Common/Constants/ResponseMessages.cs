@@ -9,6 +9,7 @@
         public const string TaskDeletedSuccessfully = "Task is deleted succesfully.";
 
         // errors:
+        public const string ErrorParentTask = "Parent task for task not found.";
         public const string NoTaskFound = "No task found.";
         public const string SubTasksMustBeClosed = "All subtasks of parent tasks must be closed to close task";
         public const string TaskCannotBeUpdated = "User cannot update task while is not assigned to it.";

@@ -41,7 +41,17 @@ namespace TaskHub.Bll.Services
             var taskEntity = _mapper.Map<TaskEntity>(task);
             taskEntity.CreatedDate = DateTime.UtcNow;
             taskEntity.AssignedUsers = (await _unitOfWork.UserRepository.GetAsync(new GetUsersByNamesSpecification(task.AssignedUserNames))).ToList();
-            taskEntity.ParentTaskId = task.ParentTaskId != null ? Guid.Parse(task.ParentTaskId) : null; 
+
+            if (task.ParentTaskId != null)
+            {
+                var parentTask = await _unitOfWork.TaskRepository.GetByIdAsync(Guid.Parse(task.ParentTaskId));
+                if (parentTask == null)
+                {
+                    return CreateErrorResponse(ResponseMessages.ErrorParentTask);
+                }
+                taskEntity.ParentTaskId = parentTask.Id;
+            }
+             
 
             await UpdateCategories(task.Categories, taskEntity);
             await _unitOfWork.TaskRepository.AddAsync(taskEntity);

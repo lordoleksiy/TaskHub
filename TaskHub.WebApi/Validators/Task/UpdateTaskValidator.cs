@@ -3,12 +3,13 @@ using TaskHub.Common.DTO.Task;
 
 namespace TaskHub.WebApi.Validators.Task
 {
-    public class UpdateTaskValidator : AbstractValidator<UpdateTaskDTO>
+    public class UpdateTaskValidator : BaseValidator<UpdateTaskDTO>
     {
         public UpdateTaskValidator()
         {
             RuleFor(task => task.Id)
-                .NotEmpty().WithMessage("Id is required.");
+                .NotEmpty().WithMessage("Id is required.")
+                .Must(BeGuid).WithMessage("Id must be guid.");
 
             RuleFor(task => task.Title)
                 .NotEmpty().WithMessage("Title is required when updating the task.")
@@ -21,13 +22,6 @@ namespace TaskHub.WebApi.Validators.Task
 
             RuleFor(task => task.Description)
                 .Length(0, 1000).WithMessage("Description must be less than 500 characters.");
-        }
-
-        private bool BeValidDate(string? value)
-        {
-            if (value == null) return true;
-            DateTime date;
-            return DateTime.TryParse(value, out date) && date > DateTime.Now;
         }
     }
 }
