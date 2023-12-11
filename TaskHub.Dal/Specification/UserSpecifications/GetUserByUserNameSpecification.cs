@@ -1,12 +1,13 @@
-﻿using TaskHub.Dal.Entities;
+﻿using Ardalis.Specification;
+using TaskHub.Dal.Entities;
 
 namespace TaskHub.Dal.Specification.UserSpecifications
 {
-    public class GetUserByUserNameSpecification: BaseSpecification<UserEntity>
+    public class GetUserByUserNameSpecification: Specification<UserEntity>
     {
         public GetUserByUserNameSpecification(string userName) 
         {
-            Criteria = i => i.UserName == userName;
+            Query.Where(i => i.UserName == userName);
         }
     }
 }

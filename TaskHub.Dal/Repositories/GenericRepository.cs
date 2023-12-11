@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Ardalis.Specification;
+using Ardalis.Specification.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TaskHub.Dal.Context;
 using TaskHub.Dal.Entities;
 using TaskHub.Dal.Interfaces;
@@ -22,7 +24,7 @@ namespace TaskHub.Dal.Repositories
 
         public async Task<IEnumerable<TEntity>> GetAsync(ISpecification<TEntity>? specification = null)
         {
-            var res = specification != null ? _entities.Specify(specification) : _entities;
+            var res = specification != null ? _entities.WithSpecification(specification) : _entities;
             return await res.ToListAsync();
         }
 

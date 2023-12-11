@@ -4,6 +4,7 @@ using System.Security.Claims;
 using TaskHub.Bll.Interfaces;
 using TaskHub.Common.DTO.Reponse;
 using TaskHub.Common.DTO.Task;
+using TaskHub.Common.QueryParams;
 
 namespace TaskHub.WebApi.Controllers
 {
@@ -19,10 +20,10 @@ namespace TaskHub.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMyTasksAsync()
+        public async Task<IActionResult> GetMyTasksAsync([FromQuery]TaskQueryParams filter)
         {
             var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
-            var response = await _taskService.GetTasksByUserNameAsync(userName);
+            var response = await _taskService.GetTasksByUserNameAsync(userName, filter);
             if (response.Status == Status.Success)
             {
                 return Ok(response);

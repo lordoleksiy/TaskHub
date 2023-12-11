@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Ardalis.Specification;
 using TaskHub.Dal.Entities;
 
 namespace TaskHub.Dal.Specification.CategorySpecifications
 {
-    public class GetCategoriesByNamesSpecification: BaseSpecification<CategoryEntity>
+    public class GetCategoriesByNamesSpecification: Specification<CategoryEntity>
     {
         public GetCategoriesByNamesSpecification(IEnumerable<string> categoryNames) 
         {
-            Criteria = i => categoryNames.Contains(i.Name);
+            Query.Where(i => categoryNames.Contains(i.Name));
         }
     }
 }

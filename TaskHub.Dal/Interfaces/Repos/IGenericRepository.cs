@@ -1,4 +1,6 @@
-﻿namespace TaskHub.Dal.Interfaces
+﻿using Ardalis.Specification;
+
+namespace TaskHub.Dal.Interfaces
 {
     public interface IGenericRepository<TEntity, TKey>
     {

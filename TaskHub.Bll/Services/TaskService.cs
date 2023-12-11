@@ -6,6 +6,7 @@ using TaskHub.Common.Constants;
 using TaskHub.Common.DTO.Reponse;
 using TaskHub.Common.DTO.Task;
 using TaskHub.Common.Enums;
+using TaskHub.Common.QueryParams;
 using TaskHub.Dal.Entities;
 using TaskHub.Dal.Interfaces;
 using TaskHub.Dal.Specification.CategorySpecifications;
@@ -23,14 +24,15 @@ namespace TaskHub.Bll.Services
         { }
 
         #region public methods
-        public async Task<ApiResponse> GetTasksByUserNameAsync(string userName)
+        public async Task<ApiResponse> GetTasksByUserNameAsync(string userName, TaskQueryParams? filter)
         {
             var users = await _unitOfWork.UserRepository.GetAsync(new GetUserByUserNameSpecification(userName));
             if (!users.Any())
             {
                 return CreateErrorResponse(ResponseMessages.UserNotFound);
             }
-            var tasks = await _unitOfWork.TaskRepository.GetAsync(new GetTasksByUserNameSpecification(userName));
+            
+            var tasks = await _unitOfWork.TaskRepository.GetAsync(new GetFilteredTasksSpecification(userName, filter));
             return CreateSucсessfullResponse(_mapper.Map<IEnumerable<TaskDTO>>(tasks));
         }
 

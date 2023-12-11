@@ -1,14 +1,16 @@
-﻿using TaskHub.Dal.Entities;
+﻿using Ardalis.Specification;
+using TaskHub.Dal.Entities;
 
 namespace TaskHub.Dal.Specification.TaskSpecifications
 {
-    public class GetTasksByUserNameSpecification: BaseSpecification<TaskEntity>
+    public class GetTasksByUserNameSpecification: Specification<TaskEntity>
     {
         public GetTasksByUserNameSpecification(string userName) 
         {
-            Criteria = i => i.AssignedUsers.Any(u => u.UserName == userName);
-            AddInclude(i => i.AssignedUsers);
-            AddInclude(i => i.Categories);
+            Query
+                .Where(i => i.AssignedUsers.Any(u => u.UserName == userName))
+                .Include(i => i.AssignedUsers)
+                .Include(i => i.Categories);
         }
     }
 }
