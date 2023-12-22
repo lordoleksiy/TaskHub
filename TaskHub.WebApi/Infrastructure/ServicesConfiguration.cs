@@ -61,8 +61,9 @@ namespace TaskHub.WebApi.Infrastructure
         {
             services.AddDbContext<DataContext>(options => options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IAuthSerivce, AuthService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ITaskService, TaskService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             return services;
         }

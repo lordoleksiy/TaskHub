@@ -18,7 +18,7 @@ using TaskHub.Dal.Specification.UserSpecifications;
 
 namespace TaskHub.Bll.Services
 {
-    public class AuthService: BaseService, IAuthSerivce
+    public class AuthService: BaseService, IAuthService
     {
         private readonly UserManager<UserEntity> _userManager;
         private readonly RoleManager<RoleEntity> _roleManager;

@@ -8,7 +8,7 @@ namespace TaskHub.Dal.Repositories
         private readonly DataContext _dbContext;
         private bool _disposed;
         private ICategoryRepository _categoryRepository;
-        private IReminderRepository _reminderRepository;
+        private INotificationRepository _notificationRepository;
         private ITaskRepository _taskRespository;
         private IUserRepository _userRepository;
         public UnitOfWork(DataContext dbContext)
@@ -23,12 +23,12 @@ namespace TaskHub.Dal.Repositories
                 return _categoryRepository; 
             } 
         }
-        public IReminderRepository ReminderRepository
+        public INotificationRepository NotificationRepository
         {
             get
             {
-                _reminderRepository ??= new ReminderRepository(_dbContext);
-                return _reminderRepository;
+                _notificationRepository ??= new NotificationRepository(_dbContext);
+                return _notificationRepository;
             }
         }
         public ITaskRepository TaskRepository

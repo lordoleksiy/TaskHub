@@ -10,9 +10,9 @@ namespace TaskHub.WebApi.Controllers
     public class AuthController : ControllerBase
     {
 
-        private readonly IAuthSerivce authService;
+        private readonly IAuthService authService;
 
-        public AuthController(IAuthSerivce authSerivce)
+        public AuthController(IAuthService authSerivce)
         {
             this.authService = authSerivce;
         }

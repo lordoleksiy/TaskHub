@@ -16,6 +16,6 @@ namespace TaskHub.Dal.Entities
         public ICollection<TaskEntity>? Subtasks { get; set; }
         public ICollection<UserEntity> AssignedUsers { get; set; }
         public ICollection<CategoryEntity>? Categories { get; set; }
-        public ICollection<ReminderEntity>? Reminders { get; set; }
+        public ICollection<NotificationEntity>? Reminders { get; set; }
     }
 }

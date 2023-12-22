@@ -13,13 +13,13 @@ namespace TaskHub.Dal.Context
         }
 
         public DbSet<TaskEntity> Tasks { get; set; }
-        public DbSet<ReminderEntity> Reminders { get; set; }
+        public DbSet<NotificationEntity> Notifications { get; set; }
         public DbSet<CategoryEntity> Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
-            modelBuilder.ApplyConfiguration(new ReminderConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificationConfiguration());
             modelBuilder.ApplyConfiguration(new TaskConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new RoleConfiguration());

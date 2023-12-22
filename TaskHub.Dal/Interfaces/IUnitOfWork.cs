@@ -4,7 +4,7 @@
     {
         IUserRepository UserRepository { get; }
         ITaskRepository TaskRepository { get; }
-        IReminderRepository ReminderRepository { get; }
+        INotificationRepository NotificationRepository { get; }
         ICategoryRepository CategoryRepository { get; }
         Task Commit();
     }

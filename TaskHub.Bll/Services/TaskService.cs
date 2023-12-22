@@ -17,11 +17,15 @@ namespace TaskHub.Bll.Services
 {
     public class TaskService : BaseService, ITaskService
     {
+        private readonly INotificationService _notificationService;
         public TaskService(
             IUnitOfWork unitOfWork,
-            IMapper mapper
+            IMapper mapper,
+            INotificationService notificationService
             ) : base(unitOfWork, mapper)
-        { }
+        {
+            _notificationService = notificationService;
+        }
 
         #region public methods
         public async Task<ApiResponse> GetTasksByUserNameAsync(string userName, TaskQueryParams? filter)
@@ -51,11 +55,12 @@ namespace TaskHub.Bll.Services
                 }
                 taskEntity.ParentTaskId = parentTask.Id;
             }
-             
+
 
             await UpdateCategories(task.Categories, taskEntity);
             await _unitOfWork.TaskRepository.AddAsync(taskEntity);
             await _unitOfWork.Commit();
+            await _notificationService.CreateForTask(taskEntity);
             return CreateSucсessfullResponse(_mapper.Map<TaskDTO>(taskEntity), ResponseMessages.TaskIsSuccessfullyCreated);
         }
 
@@ -73,7 +78,6 @@ namespace TaskHub.Bll.Services
             }
             taskEntity.Title = task.Title;
             taskEntity.Description = task.Description;
-            taskEntity.DueDate = DateTime.Parse(task.DueDate);
             taskEntity.Status = task.Status;
             if (task.Status == TaskStatusCode.Closed)
             {
@@ -85,7 +89,13 @@ namespace TaskHub.Bll.Services
             }
 
             await UpdateAssignedUsers(task, taskEntity);
-            await UpdateCategories(task.Categories, taskEntity); 
+            await UpdateCategories(task.Categories, taskEntity);
+
+            if (DateTime.Parse(task.DueDate) != taskEntity.DueDate)
+            {
+                taskEntity.DueDate = DateTime.Parse(task.DueDate);
+                await _notificationService.UpdateForTask(taskEntity);
+            }
 
             await _unitOfWork.Commit();
             return CreateSucсessfullResponse(_mapper.Map<TaskDTO>(taskEntity));

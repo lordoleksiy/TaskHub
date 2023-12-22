@@ -4,11 +4,11 @@ using TaskHub.Dal.Entities;
 
 namespace TaskHub.Dal.Context.ModelConfigurations
 {
-    public class ReminderConfiguration : IEntityTypeConfiguration<ReminderEntity>
+    public class NotificationConfiguration : IEntityTypeConfiguration<NotificationEntity>
     {
-        public void Configure(EntityTypeBuilder<ReminderEntity> builder)
+        public void Configure(EntityTypeBuilder<NotificationEntity> builder)
         {
-            builder.ToTable("Reminders");
+            builder.ToTable("Notifications");
 
             builder
                 .HasKey(r => r.Id)
@@ -21,17 +21,12 @@ namespace TaskHub.Dal.Context.ModelConfigurations
             builder
                 .Property(r => r.UserId)
                 .IsRequired();
-
-            builder.
-                Property(r => r.TaskId)
+            
+            builder.Property(r => r.TaskId)
                 .IsRequired();
 
             builder
-                .Property(r => r.ReminderTime)
-                .IsRequired();
-
-            builder
-                .Property(r => r.DueTime)
+                .Property(r => r.DueDate)
                 .IsRequired();
         }
     }

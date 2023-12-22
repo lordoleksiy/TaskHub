@@ -3,7 +3,7 @@ using TaskHub.Common.DTO.User;
 
 namespace TaskHub.Bll.Interfaces
 {
-    public interface IAuthSerivce
+    public interface IAuthService
     {
         Task<ApiResponse> RegisterAsync(RegisterModel model);
         Task<ApiResponse> LoginAsync(LoginModel model);
