@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using System.Threading.Tasks;
 using TaskHub.Bll.Interfaces;
 using TaskHub.Bll.Services.Abstract;
 using TaskHub.Common.Constants;
@@ -9,7 +8,6 @@ using TaskHub.Common.Enums;
 using TaskHub.Common.QueryParams;
 using TaskHub.Dal.Entities;
 using TaskHub.Dal.Interfaces;
-using TaskHub.Dal.Specification.CategorySpecifications;
 using TaskHub.Dal.Specification.TaskSpecifications;
 using TaskHub.Dal.Specification.UserSpecifications;
 

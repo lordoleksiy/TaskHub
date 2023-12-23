@@ -1,10 +1,4 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using FluentAssertions;
+﻿using AutoMapper;
 using NSubstitute;
 using TaskHub.Bll.Interfaces;
 using TaskHub.Bll.Services;
@@ -14,11 +8,9 @@ using TaskHub.Common.Enums;
 using TaskHub.Common.QueryParams;
 using TaskHub.Dal.Entities;
 using TaskHub.Dal.Interfaces;
-using TaskHub.Dal.Specification.CategorySpecifications;
 using TaskHub.Dal.Specification.TaskSpecifications;
 using TaskHub.Dal.Specification.UserSpecifications;
 using TaskHub.Common.Constants;
-using NSubstitute.ExceptionExtensions;
 
 namespace TaskHub.Tests.Bll.Services
 {
@@ -28,6 +20,7 @@ namespace TaskHub.Tests.Bll.Services
         private IUnitOfWork _unitOfWork;
         private IMapper _mapper;
         private INotificationService _notificationService;
+        private ICategoryService _categoryService;
         private TaskService _taskService;
 
         [SetUp]
@@ -36,7 +29,8 @@ namespace TaskHub.Tests.Bll.Services
             _unitOfWork = Substitute.For<IUnitOfWork>();
             _mapper = Substitute.For<IMapper>();
             _notificationService = Substitute.For<INotificationService>();
-            _taskService = new TaskService(_unitOfWork, _mapper, _notificationService);
+            _categoryService = Substitute.For<ICategoryService>();
+            _taskService = new TaskService(_unitOfWork, _mapper, _notificationService, _categoryService);
         }
 
         [Test]
@@ -118,13 +112,13 @@ namespace TaskHub.Tests.Bll.Services
         }
 
         [Test]
-        public async Task CreateTaskAsync_WhenCalled_CallsUpdateCategoriesWithCorrectArguments()
+        public async Task CreateTaskAsync_WithInvalidParentTaskId_ReturnsApiResponseWithError()
         {
             // Arrange
             var newTask = new NewTaskDTO
             {
                 Title = "Test Task",
-                Categories = new List<string> { "category1", "category2" }
+                ParentTaskId = Guid.NewGuid().ToString()
             };
 
             var taskEntity = new TaskEntity
@@ -134,84 +128,22 @@ namespace TaskHub.Tests.Bll.Services
 
             _mapper.Map<TaskEntity>(Arg.Is(newTask)).Returns(taskEntity);
             _unitOfWork.UserRepository.GetAsync(Arg.Any<GetUsersByNamesSpecification>()).Returns(new List<UserEntity>());
+            _unitOfWork.TaskRepository.GetByIdAsync(Arg.Any<Guid>()).Returns((TaskEntity)null);
 
             // Act
-            await _taskService.CreateTaskAsync(newTask);
+            var result = await _taskService.CreateTaskAsync(newTask);
 
             // Assert
-            await _taskService.Received(1).UpdateCategories(Arg.Is(newTask.Categories), Arg.Is(taskEntity));
+            result.Should().BeOfType<ApiResponse<TaskDTO>>();
+            result.Status.Should().Be(Status.Error);
+            result.Message.Should().Be(ResponseMessages.ErrorParentTask);
         }
 
-
-        //[Test]
-        //public async Task CreateTaskAsync_WithInvalidParentTask_ReturnsApiResponseWithError()
-        //{
-        //    // Arrange
-        //    var newTask = new NewTaskDTO
-        //    {
-        //        Title = "Test Task",
-        //        // other properties
-        //        ParentTaskId = "invalidParentTaskId" // Assuming an invalid parent task ID
-        //    };
-
-        //    _unitOfWork.UserRepository.GetAsync(Arg.Any<GetUsersByNamesSpecification>()).Returns(new List<UserEntity>());
-        //    _unitOfWork.TaskRepository.GetByIdAsync(Arg.Any<Guid>()).Returns((TaskEntity)null);
-
-        //    // Act
-        //    var result = await _taskService.CreateTaskAsync(newTask);
-
-        //    // Assert
-        //    result.Should().BeOfType<ApiResponse<TaskDTO>>();
-        //    result.Status.Should().Be(Status.Error);
-        //    result.Message.Should().Be(ResponseMessages.ErrorParentTask);
-        //}
-
-        //[Test]
-        //public async Task CreateTaskAsync_WhenErrorOccurs_ReturnsApiResponseWithError()
-        //{
-        //    // Arrange
-        //    var newTask = new NewTaskDTO
-        //    {
-        //        Title = "Test Task",
-        //        // other properties
-        //    };
-
-        //    _unitOfWork.UserRepository.GetAsync(Arg.Any<GetUsersByNamesSpecification>()).Throws(new Exception("Some error occurred"));
-
-        //    // Act
-        //    var result = await _taskService.CreateTaskAsync(newTask);
-
-        //    // Assert
-        //    result.Should().BeOfType<ApiResponse<TaskDTO>>();
-        //    result.Status.Should().Be(Status.Error);
-        //    // Add more assertions based on the expected behavior of the method
-        //}
-
-
-        //[Test]
-        //public async Task UpdateTaskAsync_ReturnsApiResponse()
-        //{
-        //    // Arrange
-        //    var updateTaskDto = new UpdateTaskDTO();
-        //    var userName = "testuser";
-        //    var taskEntity = new TaskEntity { AssignedUsers = new List<UserEntity> { new UserEntity { UserName = userName } } };
-        //    var taskEntities = new List<TaskEntity> { taskEntity };
-        //    _unitOfWork.TaskRepository.GetAsync(Arg.Any<GetFullTaskSpecification>()).Returns(taskEntities);
-        //    //_mapper.Map<TaskEntity>(newTaskDto).Returns(taskEntity);
-
-        //    // Act
-        //    var result = await _taskService.UpdateTaskAsync(updateTaskDto, userName);
-
-        //    // Assert
-        //    result.Should().BeOfType<ApiResponse>();
-        //    // Add more assertions as needed
-        //}
-
         [Test]
-        public async Task DeleteTaskAsync_ReturnsApiResponse()
+        public async Task DeleteTaskAsync_ReturnsSuccessApiResponse()
         {
             // Arrange
-            var taskId = "someId";
+            var taskId = Guid.NewGuid().ToString();
             var taskEntity = new TaskEntity();
             _unitOfWork.TaskRepository.GetByIdAsync(Arg.Any<Guid>()).Returns(taskEntity);
 
@@ -219,8 +151,214 @@ namespace TaskHub.Tests.Bll.Services
             var result = await _taskService.DeleteTaskAsync(taskId, "testuser");
 
             // Assert
+            await _unitOfWork.Received(1).Commit();
+            _unitOfWork.TaskRepository.Received(1).Remove(Arg.Is(taskEntity));
             result.Should().BeOfType<ApiResponse>();
-            // Add more assertions as needed
+            result.Status.Should().Be(Status.Success);
+            result.Message.Should().Be(ResponseMessages.TaskDeletedSuccessfully);
+        }
+
+        [Test]
+        public async Task DeleteTaskAsync_ReturnsErrorApiResponse()
+        {
+            // Arrange
+            var taskId = Guid.NewGuid().ToString();
+            _unitOfWork.TaskRepository.GetByIdAsync(Arg.Any<Guid>()).Returns((TaskEntity)null);
+
+            // Act
+            var result = await _taskService.DeleteTaskAsync(taskId, "testuser");
+
+            // Assert
+            result.Should().BeOfType<ApiResponse>();
+            result.Status.Should().Be(Status.Error);
+            result.Message.Should().Be(ResponseMessages.NoTaskFound);
+        }
+
+        [Test]
+        public async Task UpdateTaskAsync_WhenTaskNotFound_ReturnsErrorApiResponse()
+        {
+            // Arrange
+            var nonExistingTaskId = Guid.NewGuid().ToString();
+            var updateTaskDto = new UpdateTaskDTO { Id = nonExistingTaskId };
+            var userName = "testuser";
+            _unitOfWork.TaskRepository.GetAsync(Arg.Any<GetFullTaskSpecification>())
+                .Returns(new List<TaskEntity>());
+
+            // Act
+            var result = await _taskService.UpdateTaskAsync(updateTaskDto, userName);
+
+            // Assert
+            result.Should().BeOfType<ApiResponse<TaskDTO>>();
+            result.Status.Should().Be(Status.Error);
+            result.Message.Should().Be(ResponseMessages.NoTaskFound);
+        }
+
+        [Test]
+        public async Task UpdateTaskAsync_WhenNoAssignedUsers_ReturnsErrorApiResponse()
+        {
+            // Arrange
+            var existingTaskId = Guid.NewGuid().ToString();
+            var updateTaskDto = new UpdateTaskDTO { Id = existingTaskId, AssignedUserNames = null };
+            var userName = "testuser";
+            var taskEntity = new TaskEntity { AssignedUsers = new List<UserEntity>() };
+            _unitOfWork.TaskRepository.GetAsync(Arg.Any<GetFullTaskSpecification>())
+                .Returns(new List<TaskEntity> { taskEntity });
+
+            // Act
+            var result = await _taskService.UpdateTaskAsync(updateTaskDto, userName);
+
+            // Assert
+            result.Should().BeOfType<ApiResponse<TaskDTO>>();
+            result.Status.Should().Be(Status.Error);
+            result.Message.Should().Be(ResponseMessages.TaskCannotBeWithoutUsers);
+        }
+
+        [Test]
+        public async Task UpdateTaskAsync_WithValidDataAndAssignedUsers_ReturnsSuccessApiResponse()
+        {
+            // Arrange
+            var existingTaskId = Guid.NewGuid().ToString();
+            var updateTaskDto = new UpdateTaskDTO
+            {
+                Id = existingTaskId,
+                Title = "Updated Task",
+                AssignedUserNames = new List<string> { "user1", "user2" },
+                Status = TaskStatusCode.Closed,
+                DueDate = DateTime.Now.ToString()
+            };
+            var userName = "user1";
+            var taskEntity = new TaskEntity
+            {
+                Id = Guid.Parse(existingTaskId),
+                Title = "Original Task",
+                AssignedUsers = new List<UserEntity> { new UserEntity { UserName = "user1" } }
+            };
+            var taskDTO = new TaskDTO()
+            {
+                Title = "Final Task"
+            };
+            _unitOfWork.TaskRepository.GetAsync(Arg.Any<GetFullTaskSpecification>())
+                .Returns(new List<TaskEntity> { taskEntity });
+            _unitOfWork.UserRepository.GetAsync(Arg.Any<GetUsersByNamesSpecification>())
+                .Returns(new List<UserEntity> { new UserEntity { UserName = "user1" }, new UserEntity { UserName = "user2" } });
+            _categoryService.UpdateCategoriesAsync(Arg.Any<List<string>>())
+                .Returns(new List<CategoryEntity>());
+            _mapper.Map<TaskDTO>(Arg.Is(taskEntity)).Returns(taskDTO);
+
+            // Act
+            var result = await _taskService.UpdateTaskAsync(updateTaskDto, userName);
+
+            // Assert
+            result.Should().BeOfType<ApiResponse<TaskDTO>>();
+            result.Status.Should().Be(Status.Success);
+            result.Data.Should().Be(taskDTO);
+        }
+
+        [Test]
+        public async Task UpdateTaskAsync_WhenTaskCannotBeUpdated_ReturnsErrorApiResponse()
+        {
+            // Arrange
+            var existingTaskId = Guid.NewGuid().ToString();
+            var updateTaskDto = new UpdateTaskDTO
+            {
+                Id = existingTaskId,
+                Title = "Updated Task",
+                AssignedUserNames = new List<string> { "user1", "user2" },
+                Status = TaskStatusCode.Closed,
+                DueDate = DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ssZ")
+            };
+            var userName = "user3"; // Assuming user3 is not among the assigned users
+            var taskEntity = new TaskEntity
+            {
+                Id = Guid.Parse(existingTaskId),
+                Title = "Original Task",
+                AssignedUsers = new List<UserEntity> { new UserEntity { UserName = "user1" }, new UserEntity { UserName = "user2" } }
+            };
+            _unitOfWork.TaskRepository.GetAsync(Arg.Any<GetFullTaskSpecification>())
+                .Returns(new List<TaskEntity> { taskEntity });
+            _unitOfWork.UserRepository.GetAsync(Arg.Any<GetUsersByNamesSpecification>())
+                .Returns(new List<UserEntity> { new UserEntity { UserName = "user1" }, new UserEntity { UserName = "user2" } });
+
+            // Act
+            var result = await _taskService.UpdateTaskAsync(updateTaskDto, userName);
+
+            // Assert
+            result.Should().BeOfType<ApiResponse<TaskDTO>>();
+            result.Status.Should().Be(Status.Error);
+            result.Message.Should().Be(ResponseMessages.TaskCannotBeUpdated);
+        }
+
+        [Test]
+        public async Task UpdateTaskAsync_WhenNoUsersFound_ReturnsErrorApiResponse()
+        {
+            // Arrange
+            var existingTaskId = Guid.NewGuid().ToString();
+            var updateTaskDto = new UpdateTaskDTO
+            {
+                Id = existingTaskId,
+                Title = "Updated Task",
+                AssignedUserNames = new List<string> { "user1", "user2" },
+                Status = TaskStatusCode.Closed,
+                DueDate = DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ssZ")
+            };
+            var userName = "user1"; // Assuming user1 is among the assigned users
+            var taskEntity = new TaskEntity
+            {
+                Id = Guid.Parse(existingTaskId),
+                Title = "Original Task",
+                AssignedUsers = new List<UserEntity> { new UserEntity { UserName = "user1" }, new UserEntity { UserName = "user2" } }
+            };
+            _unitOfWork.TaskRepository.GetAsync(Arg.Any<GetFullTaskSpecification>())
+                .Returns(new List<TaskEntity> { taskEntity });
+            _unitOfWork.UserRepository.GetAsync(Arg.Any<GetUsersByNamesSpecification>())
+                .Returns(new List<UserEntity>()); // Assuming no users found
+
+            // Act
+            var result = await _taskService.UpdateTaskAsync(updateTaskDto, userName);
+
+            // Assert
+            result.Should().BeOfType<ApiResponse<TaskDTO>>();
+            result.Status.Should().Be(Status.Error);
+            result.Message.Should().Be(ResponseMessages.NoUsersFound);
+        }
+
+        [Test]
+        public async Task UpdateTaskAsync_WhenSubTasksNotClosed_ReturnsErrorApiResponse()
+        {
+            // Arrange
+            var existingTaskId = Guid.NewGuid().ToString();
+            var updateTaskDto = new UpdateTaskDTO
+            {
+                Id = existingTaskId,
+                Title = "Updated Task",
+                AssignedUserNames = new List<string> { "user1", "user2" },
+                Status = TaskStatusCode.Closed,
+                DueDate = DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ssZ")
+            };
+            var userName = "user1";
+            var subTask1 = new TaskEntity { Status = TaskStatusCode.InProgress };
+            var subTask2 = new TaskEntity { Status = TaskStatusCode.Closed };
+            var taskEntity = new TaskEntity
+            {
+                Id = Guid.Parse(existingTaskId),
+                Title = "Original Task",
+                AssignedUsers = new List<UserEntity> { new UserEntity { UserName = "user1" }, new UserEntity { UserName = "user2" } },
+                Subtasks = new List<TaskEntity> { subTask1, subTask2 }
+            };
+            _unitOfWork.TaskRepository.GetAsync(Arg.Any<GetFullTaskSpecification>())
+                .Returns(new List<TaskEntity> { taskEntity });
+            _unitOfWork.UserRepository.GetAsync(Arg.Any<GetUsersByNamesSpecification>())
+                .Returns(new List<UserEntity> { new UserEntity { UserName = "user1" }, new UserEntity { UserName = "user2" } });
+            _categoryService.UpdateCategoriesAsync(Arg.Any<List<string>>())
+                .Returns(new List<CategoryEntity>());
+
+            // Act
+            var result = await _taskService.UpdateTaskAsync(updateTaskDto, userName);
+
+            // Assert
+            result.Should().BeOfType<ApiResponse<TaskDTO>>();
+            result.Status.Should().Be(Status.Error);
+            result.Message.Should().Be(ResponseMessages.SubTasksMustBeClosed);
         }
     }
 }
