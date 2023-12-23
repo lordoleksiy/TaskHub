@@ -1,7 +1,10 @@
-﻿namespace TaskHub.Common.DTO.Reponse
+﻿using System.Text.Json.Serialization;
+
+namespace TaskHub.Common.DTO.Reponse
 {
     public record ApiResponse
     {
+        [JsonConstructor]
         public ApiResponse(string message, IEnumerable<string> errors): this(Status.Error, message)
         {
             Errors = errors;
