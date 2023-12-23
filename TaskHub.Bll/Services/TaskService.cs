@@ -28,19 +28,19 @@ namespace TaskHub.Bll.Services
         }
 
         #region public methods
-        public async Task<ApiResponse> GetTasksByUserNameAsync(string userName, TaskQueryParams? filter)
+        public async Task<ApiResponse<IEnumerable<TaskDTO>>> GetTasksByUserNameAsync(string userName, TaskQueryParams? filter)
         {
             var users = await _unitOfWork.UserRepository.GetAsync(new GetUserByUserNameSpecification(userName));
             if (!users.Any())
             {
-                return CreateErrorResponse(ResponseMessages.UserNotFound);
+                return new (Status.Error, ResponseMessages.UserNotFound);
             }
             
             var tasks = await _unitOfWork.TaskRepository.GetAsync(new GetFilteredTasksSpecification(userName, filter));
-            return CreateSucсessfullResponse(_mapper.Map<IEnumerable<TaskDTO>>(tasks));
+            return new(_mapper.Map<IEnumerable<TaskDTO>>(tasks));
         }
 
-        public async Task<ApiResponse> CreateTaskAsync(NewTaskDTO task)
+        public async Task<ApiResponse<TaskDTO>> CreateTaskAsync(NewTaskDTO task)
         {
             var taskEntity = _mapper.Map<TaskEntity>(task);
             taskEntity.CreatedDate = DateTime.UtcNow;
@@ -51,7 +51,7 @@ namespace TaskHub.Bll.Services
                 var parentTask = await _unitOfWork.TaskRepository.GetByIdAsync(Guid.Parse(task.ParentTaskId));
                 if (parentTask == null)
                 {
-                    return CreateErrorResponse(ResponseMessages.ErrorParentTask);
+                    return new(Status.Error, ResponseMessages.ErrorParentTask);
                 }
                 taskEntity.ParentTaskId = parentTask.Id;
             }
@@ -61,20 +61,20 @@ namespace TaskHub.Bll.Services
             await _unitOfWork.TaskRepository.AddAsync(taskEntity);
             await _unitOfWork.Commit();
             await _notificationService.CreateForTask(taskEntity);
-            return CreateSucсessfullResponse(_mapper.Map<TaskDTO>(taskEntity), ResponseMessages.TaskIsSuccessfullyCreated);
+            return new(_mapper.Map<TaskDTO>(taskEntity), ResponseMessages.TaskIsSuccessfullyCreated);
         }
 
-        public async Task<ApiResponse> UpdateTaskAsync(UpdateTaskDTO task, string userName)
+        public async Task<ApiResponse<TaskDTO>> UpdateTaskAsync(UpdateTaskDTO task, string userName)
         {
             var taskEntities = await _unitOfWork.TaskRepository.GetAsync(new GetFullTaskSpecification(new Guid(task.Id)));
             if (!taskEntities.Any())
             {
-                return CreateErrorResponse(ResponseMessages.NoTaskFound);
+                return new(Status.Error, ResponseMessages.NoTaskFound);
             }
             var taskEntity = taskEntities.First();
             if (!taskEntity.AssignedUsers.Any(u => u.UserName == userName))
             {
-                return CreateErrorResponse(ResponseMessages.TaskCannotBeUpdated);
+                return new(Status.Error, ResponseMessages.TaskCannotBeUpdated);
             }
             taskEntity.Title = task.Title;
             taskEntity.Description = task.Description;
@@ -83,7 +83,7 @@ namespace TaskHub.Bll.Services
             {
                 if (taskEntity.Subtasks != null && !taskEntity.Subtasks.All(s => s.Status == TaskStatusCode.Closed))
                 {
-                    return CreateErrorResponse(ResponseMessages.SubTasksMustBeClosed);
+                    return new(Status.Error, ResponseMessages.SubTasksMustBeClosed);
                 }
                 taskEntity.CompletedDate = DateTime.UtcNow;
             }
@@ -98,18 +98,18 @@ namespace TaskHub.Bll.Services
             }
 
             await _unitOfWork.Commit();
-            return CreateSucсessfullResponse(_mapper.Map<TaskDTO>(taskEntity));
+            return new(_mapper.Map<TaskDTO>(taskEntity));
         }
         public async Task<ApiResponse> DeleteTaskAsync(string taskId, string userName)
         {
             var taskEntity = await _unitOfWork.TaskRepository.GetByIdAsync(new Guid(taskId));
             if (taskEntity == null)
             {
-                return CreateErrorResponse(ResponseMessages.NoTaskFound);
+                return new(Status.Error, ResponseMessages.NoTaskFound);
             }
             _unitOfWork.TaskRepository.Remove(taskEntity);
             await _unitOfWork.Commit();
-            return CreateSucсessfullResponse(message:ResponseMessages.TaskDeletedSuccessfully);
+            return new(Status.Success, ResponseMessages.TaskDeletedSuccessfully);
         }
         #endregion
         #region helpers

@@ -41,29 +41,29 @@ namespace TaskHub.Bll.Services
             var users = await _unitOfWork.UserRepository.GetAsync(new GetUserByNameOrEmailSpecification(model.Username, model.Email));
             if (users.Any()) 
             {
-                return CreateErrorResponse(ResponseMessages.UserIsAlreadyRegistered);
+                return new( Status.Error, ResponseMessages.UserIsAlreadyRegistered);
             }
             var user = _mapper.Map<UserEntity>(model);
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded) 
             {
-                return CreateErrorResponse(ResponseMessages.ErrorWhileCreatingUser, result.Errors.Select(u => u.Description));
+                return new(ResponseMessages.ErrorWhileCreatingUser, result.Errors.Select(u => u.Description));
             }
-            return CreateSucсessfullResponse(message: ResponseMessages.UserSuccessfullyRegistered);
+            return new(Status.Success, ResponseMessages.UserSuccessfullyRegistered);
         }
 
-        public async Task<ApiResponse> LoginAsync(LoginModel model)
+        public async Task<ApiResponse<TokenResponseDTO>> LoginAsync(LoginModel model)
         {
             var user = (await _unitOfWork.UserRepository.GetAsync(new GetUserByUserNameSpecification(model.Username))).FirstOrDefault();
             if (user == null) 
             {
-                return CreateErrorResponse(ResponseMessages.UserNotFound);
+                return new(Status.Error, ResponseMessages.UserNotFound);
             }
             if (!await _userManager.CheckPasswordAsync(user, model.Password))
             {
-                return CreateErrorResponse(ResponseMessages.IncorrectPassword);
+                return new(Status.Error, ResponseMessages.IncorrectPassword);
             }
-            return CreateSucсessfullResponse(new TokenResponseDTO(await GenerateJWTToken(user)));
+            return new (new TokenResponseDTO(await GenerateJWTToken(user)));
         }
 
         private async Task<string> GenerateJWTToken(UserEntity user)

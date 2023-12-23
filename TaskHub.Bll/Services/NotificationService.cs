@@ -51,7 +51,7 @@ namespace TaskHub.Bll.Services
             await _unitOfWork.Commit();
         }
 
-        public async Task<ApiResponse> Get(string userName)
+        public async Task<ApiResponse<IEnumerable<NotificationDTO>>> Get(string userName)
         {
             var notificationsEntities = await _unitOfWork.NotificationRepository.GetAsync(new GetNotificationsByUserName(userName));
             var notifications = notificationsEntities.Select(n => new NotificationDTO()
@@ -63,7 +63,7 @@ namespace TaskHub.Bll.Services
             {
                 _unitOfWork.NotificationRepository.Remove(notification);
             }
-            return CreateSucсessfullResponse(notifications);
+            return new(notifications);
         }
     }
 }

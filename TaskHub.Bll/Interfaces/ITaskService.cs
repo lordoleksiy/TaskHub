@@ -6,9 +6,9 @@ namespace TaskHub.Bll.Interfaces
 {
     public interface ITaskService
     {
-        Task<ApiResponse> GetTasksByUserNameAsync(string userName, TaskQueryParams filter);
-        Task<ApiResponse> CreateTaskAsync(NewTaskDTO task);
-        Task<ApiResponse> UpdateTaskAsync(UpdateTaskDTO task, string userName);
+        Task<ApiResponse<IEnumerable<TaskDTO>>> GetTasksByUserNameAsync(string userName, TaskQueryParams filter);
+        Task<ApiResponse<TaskDTO>> CreateTaskAsync(NewTaskDTO task);
+        Task<ApiResponse<TaskDTO>> UpdateTaskAsync(UpdateTaskDTO task, string userName);
         Task<ApiResponse> DeleteTaskAsync(string taskName, string userName);
     }
 }

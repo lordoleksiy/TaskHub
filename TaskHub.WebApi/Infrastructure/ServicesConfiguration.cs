@@ -74,12 +74,7 @@ namespace TaskHub.WebApi.Infrastructure
             {
                 options.InvalidModelStateResponseFactory = c =>
                 {
-                    var response = new ApiResponse
-                    {
-                        Message = "Validation Error",
-                        Status = Status.Error,
-                        Errors = c.ModelState.Values.SelectMany(v => v.Errors).Select(a => a.ErrorMessage).ToList()
-                    };
+                    var response = new ApiResponse("Validation Error", c.ModelState.Values.SelectMany(v => v.Errors).Select(a => a.ErrorMessage).ToList());
                     return new BadRequestObjectResult(response);
                 };
             });

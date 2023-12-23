@@ -24,11 +24,7 @@ namespace TaskHub.WebApi.Middlewares
                 response.ContentType = "application/json";
                 response.StatusCode = 500;
 
-                var result = new ApiResponse()
-                {
-                    Message = error.Message,
-                    Status = Status.Error
-                };
+                var result = new ApiResponse(Status.Error, error.Message);
                 await response.WriteAsync(JsonSerializer.Serialize(result));
             }
         }

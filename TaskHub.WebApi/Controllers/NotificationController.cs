@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TaskHub.Bll.Interfaces;
+using TaskHub.Common.DTO.Notification;
+using TaskHub.Common.DTO.Reponse;
 
 namespace TaskHub.WebApi.Controllers
 {
@@ -16,7 +18,7 @@ namespace TaskHub.WebApi.Controllers
             this.notificationService = notificationService;
         }
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<ActionResult<ApiResponse<IEnumerable<NotificationDTO>>>> Get()
         {
             var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
             return Ok(await notificationService.Get(userName));

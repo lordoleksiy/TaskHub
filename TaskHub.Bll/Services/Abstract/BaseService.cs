@@ -14,33 +14,5 @@ namespace TaskHub.Bll.Services.Abstract
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        
-        protected static ApiResponse CreateErrorResponse(string message, IEnumerable<string>? erorrs = null)
-        {
-            return new ApiResponse
-            {
-                Status = Status.Error,
-                Message = message,
-                Errors = erorrs
-            };
-        }
-
-        protected static ApiResponse CreateSucсessfullResponse(string? message = null)
-        {
-            return new ApiResponse
-            {
-                Status = Status.Success,
-                Message = message ?? nameof(Status.Success),
-            };
-        }
-        protected static ApiResponse CreateSucсessfullResponse<T>(T data, string? message = null)
-        {
-            return new ApiResponse<T>
-            {
-                Status = Status.Success,
-                Message = message ?? nameof(Status.Success),
-                Data = data
-            };
-        }
     }
 }
