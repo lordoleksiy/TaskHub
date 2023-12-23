@@ -15,6 +15,7 @@ namespace TaskHub.WebApi.Controllers
         {
             this.notificationService = notificationService;
         }
+        [HttpGet]
         public async Task<IActionResult> Get()
         {
             var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
