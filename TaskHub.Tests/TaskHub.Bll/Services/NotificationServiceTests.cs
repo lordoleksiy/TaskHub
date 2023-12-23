@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using FluentAssertions;
+﻿using AutoMapper;
 using NSubstitute;
-using NUnit.Framework;
 using TaskHub.Bll.Services;
 using TaskHub.Common.DTO.Notification;
 using TaskHub.Common.DTO.Reponse;
-using TaskHub.Common.DTO.Task;
 using TaskHub.Dal.Entities;
 using TaskHub.Dal.Interfaces;
 using TaskHub.Dal.Specification.NotificationSpecifications;
@@ -53,52 +46,65 @@ namespace TaskHub.Tests.TaskHub.Bll.Services
         }
 
         [Test]
-        public async Task UpdateForTask_ShouldAddForEachAssignedUser()
+        public async Task UpdateForTask_UpdatesExistingNotifications()
         {
             // Arrange
+            var users = new List<UserEntity>
+            {
+                new() { UserName = "testuser" },
+                new() { UserName = "testuser2" }
+            };
             var task = new TaskEntity
             {
-                AssignedUsers = new List<UserEntity>
-                {
-                    new UserEntity { UserName = "user1" },
-                    new UserEntity { UserName = "user2" }
-                }
+                DueDate = DateTime.Now,
+                AssignedUsers = users
             };
-            
+
+            var existingNotifications = users.Select(user => new NotificationEntity
+            {
+                User = user,
+                Task = task,
+                DueDate = DateTime.Now.AddDays(-1)
+            }).ToList();
+
             _unitOfWork.NotificationRepository.GetAsync(Arg.Any<GetNotificationsByUserName>())
-                .Returns(new List<NotificationEntity> { existingNotification });
+                .Returns(existingNotifications);
 
             // Act
             await _notificationService.UpdateForTask(task);
 
             // Assert
-            _unitOfWork.NotificationRepository.Received(2).Update(Arg.Any<NotificationEntity>());
-            _unitOfWork.Received(1);
+            _unitOfWork.NotificationRepository.Received(users.Count).Update(Arg.Is<NotificationEntity>(n => n.Task == task && n.DueDate == task.DueDate));
+            await _unitOfWork.Received(1).Commit();
         }
+
 
         [Test]
-        public async Task UpdateForTask_ShouldUpdateNotificationsForEachAssignedUser()
+        public async Task UpdateForTask_CreatesNewNotifications()
         {
             // Arrange
-            var task = new TaskEntity
+            var users = new List<UserEntity>
             {
-                AssignedUsers = new List<UserEntity>
-                {
-                    new UserEntity { UserName = "user1" },
-                    new UserEntity { UserName = "user2" }
-                }
+                new() { UserName = "testuser" },
+                new() { UserName = "testuser2" }
+            };
+            var task = new TaskEntity 
+            { 
+                DueDate = DateTime.Now,
+                AssignedUsers = users
             };
 
             _unitOfWork.NotificationRepository.GetAsync(Arg.Any<GetNotificationsByUserName>())
-                .Returns(new List<NotificationEntity> { existingNotification });
+                .Returns(new List<NotificationEntity>());
 
             // Act
             await _notificationService.UpdateForTask(task);
 
             // Assert
-            _unitOfWork.NotificationRepository.Received(2).Update(Arg.Any<NotificationEntity>());
-            _unitOfWork.Received(1);
+            await _unitOfWork.NotificationRepository.Received(users.Count).AddAsync(Arg.Is<NotificationEntity>(n => n.Task == task));
+            await _unitOfWork.Received(1).Commit();
         }
+
 
         [Test]
         public async Task Get_ShouldReturnApiResponseWithNotificationsForUser()
