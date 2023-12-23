@@ -35,9 +35,12 @@ namespace TaskHub.WebApi.Controllers
         public async Task<ActionResult<ApiResponse<TaskDTO>>> CreateTaskAsync(NewTaskDTO task)
         {
             var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
-            if (!task.AssignedUserNames.Contains(userName))
+            if (task.AssignedUserNames == null || !task.AssignedUserNames.Contains(userName))
             {
-                task.AssignedUserNames.Add(userName);
+                task.AssignedUserNames = new List<string>()
+                {
+                    userName
+                };
             }
             var response = await _taskService.CreateTaskAsync(task);
             if (response.Status == Status.Success)
