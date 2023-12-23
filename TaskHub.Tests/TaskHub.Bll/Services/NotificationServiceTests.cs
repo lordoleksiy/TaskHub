@@ -133,11 +133,10 @@ namespace TaskHub.Tests.TaskHub.Bll.Services
             var result = await _notificationService.Get(userName);
 
             // Assert
-            result.Should().BeOfType<ApiResponse>();
+            result.Should().BeOfType<ApiResponse<IEnumerable<NotificationDTO>>>();
             result.Status.Should().Be(Status.Success);
-            var notifications = result.Data as IEnumerable<NotificationDTO>;
-            notifications.Should().NotBeNull();
-            notifications.Should().HaveCount(2);
+            result.Data.Should().NotBeNull();
+            result.Data.Should().HaveCount(2);
         }
     }
 }

@@ -9,6 +9,7 @@ using TaskHub.Bll.Interfaces;
 using TaskHub.Bll.Services;
 using TaskHub.Common.Constants;
 using TaskHub.Common.DTO.Reponse;
+using TaskHub.Common.DTO.Reponse.Token;
 using TaskHub.Common.DTO.User;
 using TaskHub.Common.Helpers;
 using TaskHub.Dal.Entities;
@@ -108,7 +109,7 @@ namespace TaskHub.Tests.TaskHub.Bll.Services
         }
 
         [TestCase("testuser", "testpassword")]
-        public async Task LoginAsync_WhenUserExists_ShouldReturnSuccessResponseAndSpecificRoles(string username, string password)
+        public async Task LoginAsync_WhenUserExists_ShouldReturnSuccessResponseAndHasData(string username, string password)
         {
             // Arrange
             var model = new LoginModel(username, password);
@@ -121,8 +122,10 @@ namespace TaskHub.Tests.TaskHub.Bll.Services
             var result = await _authService.LoginAsync(model);
 
             // Assert
-            result.Should().BeOfType<ApiResponse>();
+            result.Should().BeOfType<ApiResponse<TokenResponseDTO>>();
             result.Status.Should().Be(Status.Success);
+            result.Data.Should().BeOfType<TokenResponseDTO>();
+            result.Data.Should().NotBeNull();
         }
 
         [TestCase("testuser", "testpassword")]
@@ -136,7 +139,7 @@ namespace TaskHub.Tests.TaskHub.Bll.Services
             var result = await _authService.LoginAsync(model);
 
             // Assert
-            result.Should().BeOfType<ApiResponse>();
+            result.Should().BeOfType<ApiResponse<TokenResponseDTO>>();
             result.Status.Should().Be(Status.Error);
             result.Message.Should().Be(ResponseMessages.UserNotFound);
         }
@@ -154,7 +157,7 @@ namespace TaskHub.Tests.TaskHub.Bll.Services
             var result = await _authService.LoginAsync(model);
 
             // Assert
-            result.Should().BeOfType<ApiResponse>();
+            result.Should().BeOfType<ApiResponse<TokenResponseDTO>>();
             result.Status.Should().Be(Status.Error);
             result.Message.Should().Be(ResponseMessages.IncorrectPassword);
         }
