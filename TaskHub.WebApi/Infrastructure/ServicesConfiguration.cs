@@ -64,6 +64,7 @@ namespace TaskHub.WebApi.Infrastructure
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<ICategoryService, CategoryService>();
 
             return services;
         }

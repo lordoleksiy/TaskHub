@@ -22,7 +22,7 @@ namespace TaskHub.Dal.Repositories
             await _entities.AddAsync(entity);
         }
 
-        public async Task<IEnumerable<TEntity>> GetAsync(ISpecification<TEntity>? specification = null)
+        public async Task<ICollection<TEntity>> GetAsync(ISpecification<TEntity>? specification = null)
         {
             var res = specification != null ? _entities.WithSpecification(specification) : _entities;
             return await res.ToListAsync();

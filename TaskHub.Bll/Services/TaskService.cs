@@ -18,12 +18,15 @@ namespace TaskHub.Bll.Services
     public class TaskService : BaseService, ITaskService
     {
         private readonly INotificationService _notificationService;
+        private readonly ICategoryService _categoryService;
         public TaskService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
-            INotificationService notificationService
+            INotificationService notificationService,
+            ICategoryService categoryService
             ) : base(unitOfWork, mapper)
         {
+            _categoryService = categoryService;
             _notificationService = notificationService;
         }
 
@@ -56,8 +59,7 @@ namespace TaskHub.Bll.Services
                 taskEntity.ParentTaskId = parentTask.Id;
             }
 
-
-            await UpdateCategories(task.Categories, taskEntity);
+            taskEntity.Categories = await _categoryService.UpdateCategoriesAsync(task.Categories);
             await _unitOfWork.TaskRepository.AddAsync(taskEntity);
             await _unitOfWork.Commit();
             await _notificationService.CreateForTask(taskEntity);
@@ -70,6 +72,10 @@ namespace TaskHub.Bll.Services
             if (!taskEntities.Any())
             {
                 return new(Status.Error, ResponseMessages.NoTaskFound);
+            }
+            if (task.AssignedUserNames == null || !task.AssignedUserNames.Any())
+            {
+                return new(Status.Error, ResponseMessages.TaskCannotBeWithoutUsers);
             }
             var taskEntity = taskEntities.First();
             if (!taskEntity.AssignedUsers.Any(u => u.UserName == userName))
@@ -87,9 +93,14 @@ namespace TaskHub.Bll.Services
                 }
                 taskEntity.CompletedDate = DateTime.UtcNow;
             }
+            
+            taskEntity.AssignedUsers = await _unitOfWork.UserRepository.GetAsync(new GetUsersByNamesSpecification(task.AssignedUserNames));
+            if (!taskEntity.AssignedUsers.Any())
+            {
+                return new(Status.Error, ResponseMessages.NoUsersFound);
+            }
 
-            await UpdateAssignedUsers(task, taskEntity);
-            await UpdateCategories(task.Categories, taskEntity);
+            taskEntity.Categories = await _categoryService.UpdateCategoriesAsync(task.Categories);
 
             if (DateTime.Parse(task.DueDate) != taskEntity.DueDate)
             {
@@ -110,39 +121,6 @@ namespace TaskHub.Bll.Services
             _unitOfWork.TaskRepository.Remove(taskEntity);
             await _unitOfWork.Commit();
             return new(Status.Success, ResponseMessages.TaskDeletedSuccessfully);
-        }
-        #endregion
-        #region helpers
-        private async Task UpdateAssignedUsers(UpdateTaskDTO task, TaskEntity taskEntity)
-        {
-            if (task.AssignedUserNames != null)
-            {
-                var newUsersNames = task.AssignedUserNames.Except(taskEntity.AssignedUsers.Select(u => u.UserName));
-                if (newUsersNames.Any())
-                {
-                    var users = await _unitOfWork.UserRepository.GetAsync(new GetUsersByNamesSpecification(newUsersNames));
-                    foreach (var user in users)
-                    {
-                        taskEntity.AssignedUsers.Add(user);
-                    }
-                }
-            }
-        }
-
-        private async Task UpdateCategories(ICollection<string>? categories, TaskEntity taskEntity)
-        {
-            if (categories != null && categories.Any())
-            {
-                var categoriesInDB = (await _unitOfWork.CategoryRepository.GetAsync(new GetCategoriesByNamesSpecification(categories))).ToList();
-                var newCategories = categories.Except(categoriesInDB.Select(u => u.Name));
-                categoriesInDB.AddRange(newCategories.Select(c => new CategoryEntity { Name = c }));
-                
-                taskEntity.Categories = categoriesInDB;
-            }
-            else
-            {
-                taskEntity.Categories = null;
-            }
         }
         #endregion
     }
