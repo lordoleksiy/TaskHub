@@ -2,6 +2,7 @@
 using TaskHub.Common.DTO.User;
 using TaskHub.Common.DTO.Reponse;
 using TaskHub.Bll.Interfaces;
+using TaskHub.Common.DTO.Reponse.Token;
 
 namespace TaskHub.WebApi.Controllers
 {
@@ -18,7 +19,7 @@ namespace TaskHub.WebApi.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<ActionResult<ApiResponse>> Register([FromBody] RegisterModel model)
         {
             var response = await authService.RegisterAsync(model);
             if (response.Status == Status.Success)
@@ -29,7 +30,7 @@ namespace TaskHub.WebApi.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<ActionResult<ApiResponse<TokenResponseDTO>>> Login([FromBody] LoginModel model)
         {
             var response = await authService.LoginAsync(model);
             if (response.Status == Status.Success)

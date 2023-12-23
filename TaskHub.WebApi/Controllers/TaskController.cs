@@ -20,7 +20,7 @@ namespace TaskHub.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMyTasksAsync([FromQuery]TaskQueryParams filter)
+        public async Task<ActionResult<ApiResponse<IEnumerable<TaskDTO>>>> GetMyTasksAsync([FromQuery]TaskQueryParams filter)
         {
             var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
             var response = await _taskService.GetTasksByUserNameAsync(userName, filter);
@@ -32,7 +32,7 @@ namespace TaskHub.WebApi.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateTaskAsync(NewTaskDTO task)
+        public async Task<ActionResult<ApiResponse<TaskDTO>>> CreateTaskAsync(NewTaskDTO task)
         {
             var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
             if (!task.AssignedUserNames.Contains(userName))
@@ -48,7 +48,7 @@ namespace TaskHub.WebApi.Controllers
         }
 
         [HttpPost("update")]
-        public async Task<IActionResult> UpdateTaskAsync(UpdateTaskDTO task)
+        public async Task<ActionResult<ApiResponse<TaskDTO>>> UpdateTaskAsync(UpdateTaskDTO task)
         {
             var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
             var response = await _taskService.UpdateTaskAsync(task, userName);
@@ -60,7 +60,7 @@ namespace TaskHub.WebApi.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteTaskAsync([FromQuery] string Id)
+        public async Task<ActionResult<ApiResponse>> DeleteTaskAsync([FromQuery] string Id)
         {
             var userName = User.FindFirst(ClaimTypes.Name)?.Value!;
             var response = await _taskService.DeleteTaskAsync(Id, userName);
