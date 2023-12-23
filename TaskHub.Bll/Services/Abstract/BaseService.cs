@@ -25,14 +25,22 @@ namespace TaskHub.Bll.Services.Abstract
             };
         }
 
-        protected static ApiResponse CreateSucсessfullResponse(Object? data = null, string? message = null)
+        protected static ApiResponse CreateSucсessfullResponse(string? message = null)
         {
             return new ApiResponse
             {
                 Status = Status.Success,
                 Message = message ?? nameof(Status.Success),
+            };
+        }
+        protected static ApiResponse CreateSucсessfullResponse<T>(T data, string? message = null)
+        {
+            return new ApiResponse<T>
+            {
+                Status = Status.Success,
+                Message = message ?? nameof(Status.Success),
                 Data = data
             };
-        } 
+        }
     }
 }
