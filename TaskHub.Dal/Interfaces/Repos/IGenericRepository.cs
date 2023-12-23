@@ -8,6 +8,6 @@ namespace TaskHub.Dal.Interfaces
         Task AddAsync(TEntity entity);
         void Update(TEntity entity);
         void Remove(TEntity entity);
-        Task<IEnumerable<TEntity>> GetAsync(ISpecification<TEntity>? specification = null);
+        Task<ICollection<TEntity>> GetAsync(ISpecification<TEntity>? specification = null);
     }
 }
