@@ -4,7 +4,6 @@ namespace TaskHub.Common.DTO.Reponse
 {
     public record ApiResponse
     {
-        [JsonConstructor]
         public ApiResponse(string message, IEnumerable<string> errors): this(Status.Error, message)
         {
             Errors = errors;
@@ -14,6 +13,8 @@ namespace TaskHub.Common.DTO.Reponse
             Status = status;
             Message = message ?? status.ToString();
         }
+        public ApiResponse() : this(Status.Success)
+        {}
         public Status Status { get; init; }
         public string Message { get; init; }
         public IEnumerable<string>? Errors { get; init; }

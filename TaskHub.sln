@@ -16,7 +16,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskHub.Common", "TaskHub.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskHub.Bll", "TaskHub.Bll\TaskHub.Bll.csproj", "{AD4A8F5E-50E4-4859-A806-ACE612E461FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskHub.Tests", "TaskHub.Tests\TaskHub.Tests.csproj", "{74924AF2-7F4F-481D-8C42-DC792396B9A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskHub.Tests", "TaskHub.Tests\TaskHub.Tests.csproj", "{74924AF2-7F4F-481D-8C42-DC792396B9A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskHub.IntegrationTests", "TaskHub.IntegrationTests\TaskHub.IntegrationTests.csproj", "{581C04BF-67E4-4D78-969F-8449703DAB14}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +46,10 @@ Global
 		{74924AF2-7F4F-481D-8C42-DC792396B9A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74924AF2-7F4F-481D-8C42-DC792396B9A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74924AF2-7F4F-481D-8C42-DC792396B9A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{581C04BF-67E4-4D78-969F-8449703DAB14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{581C04BF-67E4-4D78-969F-8449703DAB14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{581C04BF-67E4-4D78-969F-8449703DAB14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{581C04BF-67E4-4D78-969F-8449703DAB14}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

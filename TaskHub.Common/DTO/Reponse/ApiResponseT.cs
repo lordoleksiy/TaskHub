@@ -10,6 +10,9 @@
         public ApiResponse(Status status, string? message = null) : base(status, message)
         {
         }
+        public ApiResponse() : base()
+        {
+        }
 
         public T? Data { get; init; }
     }
