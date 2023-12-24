@@ -1,7 +1,9 @@
-﻿using TaskHub.Dal.Context;
+﻿using Ardalis.Specification;
+using TaskHub.Dal.Context;
 using TaskHub.Dal.Entities;
 using TaskHub.Dal.Interfaces;
 using TaskHub.Dal.Repositories;
+using TaskHub.Dal.Specification.UserSpecifications;
 using TaskHub.Tests.TaskHub.Dal.Repositories;
 
 namespace TaskHub.Dal.Tests
@@ -89,6 +91,29 @@ namespace TaskHub.Dal.Tests
 
             // Assert
             _dataContext.Users.Single(u => u.Id == user.Id).UserName.Should().Be("UpdatedUser");
+        }
+
+        [Test]
+        public async Task GetAsync_WithSpecification_ReturnsFilteredEntities()
+        {
+            // Arrange
+            var entities = new List<UserEntity>
+            {
+                new UserEntity { Id = Guid.NewGuid(), UserName = "Test User 1", Email = "TestEmail1@gmail.com" },
+                new UserEntity { Id = Guid.NewGuid(), UserName = "Test User 2", Email = "TestEmail2@gmail.com" },
+                new UserEntity { Id = Guid.NewGuid(), UserName = "Test User 3", Email = "TestEmail3@gmail.com" }
+            };
+            await _dataContext.AddRangeAsync(entities);
+            await _dataContext.SaveChangesAsync();
+
+            var spec = new GetUserByUserNameSpecification("Test User 2");
+
+            // Act
+            var result = await _repository.GetAsync(spec);
+
+            // Assert
+            result.Should().HaveCount(1);
+            result.Should().ContainEquivalentOf(entities[1]);
         }
     }
 }
