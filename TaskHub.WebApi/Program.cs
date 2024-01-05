@@ -1,3 +1,7 @@
+using TaskHub.WebApi.Infrastructure;
+using Newtonsoft.Json;
+
+
 namespace TaskHub.WebApi
 {
     public class Program
@@ -6,13 +10,14 @@ namespace TaskHub.WebApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.ConfigureServices(builder.Configuration);
+            builder.Services.AddDependencyGroup(builder.Configuration);
+           
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -21,8 +26,7 @@ namespace TaskHub.WebApi
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
-
+            app.Configure();
 
             app.MapControllers();
 
